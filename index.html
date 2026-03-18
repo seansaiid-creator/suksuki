@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>쑥쑥이 - 임신부터 취학 전까지, 우리 아이 성장 파트너</title>
+  <meta name="description" content="임신부터 초등학교 입학 전까지, 예방접종·발달정보·이유식 레시피·정부지원금을 한 곳에서. 쑥쑥이와 함께 우리 아이 성장을 기록하세요." />
+  <meta property="og:title" content="쑥쑥이 - 우리 아이 성장 파트너" />
+  <meta property="og:description" content="임신부터 취학 전까지 모든 육아 정보를 한 곳에서" />
+  <meta property="og:image" content="https://suksuki.com/images/og-image.png" />
+  <meta property="og:url" content="https://suksuki.com" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          🌱 <span>쑥쑥이</span>
+        </a>
+        <nav class="nav">
+          <a href="dday.html">D-day</a>
+          <a href="growth.html">성장정보</a>
+          <a href="vaccine.html">예방접종</a>
+          <a href="recipe.html">레시피</a>
+          <a href="subsidy.html">지원금</a>
+        </nav>
+        <button class="btn-start" onclick="scrollToSetup()">시작하기</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 히어로 섹션 -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <p class="hero-tag">🍼 임신부터 취학 전까지</p>
+        <h1 class="hero-title">
+          우리 아이의 모든 순간,<br />
+          <span class="highlight">쑥쑥이</span>가 함께해요
+        </h1>
+        <p class="hero-desc">
+          예방접종, 발달 체크리스트, 이유식 레시피, 정부 지원금까지<br />
+          아이 개월수에 맞는 정보를 한 곳에서 확인하세요
+        </p>
+        <button class="btn-hero" onclick="scrollToSetup()">
+          우리 아이 정보 입력하기 →
+        </button>
+        <p class="hero-note">✓ 무료 ✓ 회원가입 불필요 ✓ 광고 없는 깔끔한 정보</p>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-card-header">🌱 우리 아이</div>
+          <div class="hero-card-months">18개월</div>
+          <div class="hero-card-items">
+            <div class="hero-card-item">💉 이번 달 예방접종 확인</div>
+            <div class="hero-card-item">📏 성장 발달 체크리스트</div>
+            <div class="hero-card-item">🍳 오늘의 이유식 레시피</div>
+            <div class="hero-card-item">💰 받을 수 있는 지원금</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 아이 정보 입력 섹션 -->
+  <section class="setup" id="setup">
+    <div class="container">
+      <div class="setup-box">
+        <h2 class="setup-title">우리 아이 정보를 입력해주세요</h2>
+        <p class="setup-desc">개월수에 맞는 맞춤 정보를 바로 보여드려요</p>
+
+        <div class="setup-tabs">
+          <button class="tab active" onclick="switchTab('baby', this)">👶 아이가 있어요</button>
+          <button class="tab" onclick="switchTab('pregnant', this)">🤰 임신 중이에요</button>
+        </div>
+
+        <!-- 아이 탭 -->
+        <div id="tab-baby" class="tab-content active">
+          <div class="form-group">
+            <label>아이 이름 (선택)</label>
+            <input type="text" id="baby-name" placeholder="예: 민준이" maxlength="10" />
+          </div>
+          <div class="form-group">
+            <label>아이 생년월일 <span class="required">*</span></label>
+            <input type="date" id="baby-birth" max="" />
+          </div>
+          <div class="form-group">
+            <label>성별 (선택)</label>
+            <div class="gender-btns">
+              <button class="gender-btn" id="btn-boy" onclick="selectGender('boy')">👦 남아</button>
+              <button class="gender-btn" id="btn-girl" onclick="selectGender('girl')">👧 여아</button>
+            </div>
+          </div>
+          <button class="btn-submit" onclick="saveBabyInfo()">맞춤 정보 보기 →</button>
+        </div>
+
+        <!-- 임신 탭 -->
+        <div id="tab-pregnant" class="tab-content">
+          <div class="form-group">
+            <label>엄마 이름 (선택)</label>
+            <input type="text" id="mom-name" placeholder="예: 김지영" maxlength="10" />
+          </div>
+          <div class="form-group">
+            <label>출산 예정일 <span class="required">*</span></label>
+            <input type="date" id="due-date" min="" />
+          </div>
+          <div class="form-group">
+            <label>아빠에게도 D-day 알림 보내기 (선택)</label>
+            <input type="text" id="dad-contact" placeholder="카카오톡 ID 또는 전화번호" />
+            <p class="input-hint">💌 아빠도 함께 출산을 준비할 수 있어요</p>
+          </div>
+          <button class="btn-submit" onclick="savePregnantInfo()">D-day 시작하기 →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 현재 아이 정보 표시 (저장된 경우) -->
+  <section class="current-info" id="current-info" style="display:none;">
+    <div class="container">
+      <div class="current-card">
+        <div class="current-card-left">
+          <p class="current-label">현재 등록된 아이</p>
+          <h2 class="current-name" id="display-name">-</h2>
+          <p class="current-months" id="display-months">-</p>
+        </div>
+        <div class="current-card-right">
+          <button class="btn-edit" onclick="editInfo()">✏️ 수정</button>
+        </div>
+      </div>
+      <div class="quick-menu">
+        <a href="dday.html" class="quick-item">
+          <span class="quick-icon">📅</span>
+          <span class="quick-label">D-day</span>
+        </a>
+        <a href="growth.html" class="quick-item">
+          <span class="quick-icon">📏</span>
+          <span class="quick-label">성장정보</span>
+        </a>
+        <a href="vaccine.html" class="quick-item">
+          <span class="quick-icon">💉</span>
+          <span class="quick-label">예방접종</span>
+        </a>
+        <a href="recipe.html" class="quick-item">
+          <span class="quick-icon">🍳</span>
+          <span class="quick-label">레시피</span>
+        </a>
+        <a href="subsidy.html" class="quick-item">
+          <span class="quick-icon">💰</span>
+          <span class="quick-label">지원금</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 핵심 기능 소개 -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">쑥쑥이와 함께라면</h2>
+      <p class="section-desc">이제 육아 정보 찾아 헤매지 마세요</p>
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon">💉</div>
+          <h3>예방접종 관리</h3>
+          <p>국가예방접종 전체 스케줄을 한눈에. 맞은 것 체크하면 다음 접종을 자동으로 알려드려요.</p>
+          <a href="vaccine.html" class="feature-link">확인하기 →</a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📏</div>
+          <h3>성장 발달 체크</h3>
+          <p>키·몸무게·머리둘레 평균 수치와 비교해보세요. 이번 달 발달 체크리스트도 확인할 수 있어요.</p>
+          <a href="growth.html" class="feature-link">확인하기 →</a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🍳</div>
+          <h3>개월수 맞춤 레시피</h3>
+          <p>우리 아이 개월수에 맞는 이유식·유아식 레시피를 추천해드려요. 냉장고 재료로 만들 수 있는 것만!</p>
+          <a href="recipe.html" class="feature-link">확인하기 →</a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>정부 지원금 검색</h3>
+          <p>아이 나이에 맞는 정부 지원금과 혜택을 한 번에 확인하세요. 놓치는 지원금이 없도록!</p>
+          <a href="subsidy.html" class="feature-link">확인하기 →</a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3>D-day 카운트다운</h3>
+          <p>출산 예정일까지 매일 카운트다운. 아빠와 함께 공유하고, 인스타에 올릴 수 있는 D-day 카드도!</p>
+          <a href="dday.html" class="feature-link">확인하기 →</a>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🤝</div>
+          <h3>아빠와 함께</h3>
+          <p>D-day 알림을 아빠에게도 공유하세요. 함께 준비하는 출산이 더 행복해요.</p>
+          <a href="dday.html" class="feature-link">확인하기 →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 공유 유도 섹션 -->
+  <section class="share-section">
+    <div class="container">
+      <div class="share-box">
+        <h2>임신한 친구에게 알려주세요 🍼</h2>
+        <p>주변에 임신하거나 아이를 키우는 친구가 있다면<br />쑥쑥이를 공유해주세요. 육아가 조금 더 쉬워져요!</p>
+        <div class="share-btns">
+          <button class="btn-share kakao" onclick="shareKakao()">
+            💬 카카오톡으로 공유
+          </button>
+          <button class="btn-share link" onclick="copyLink()">
+            🔗 링크 복사
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 면책 고지 -->
+  <section class="disclaimer">
+    <div class="container">
+      <div class="disclaimer-box">
+        <p>⚠️ <strong>중요 안내</strong></p>
+        <p>쑥쑥이에서 제공하는 모든 정보는 <strong>일반적인 참고 자료</strong>입니다. 아이마다 발달 속도와 상황이 다를 수 있으며, 건강 관련 사항은 반드시 <strong>소아과 전문의와 상담</strong>하시기 바랍니다. 예방접종 일정 및 의료 관련 정보는 질병관리청 및 대한소아과학회 기준을 참고하였으나, 최신 정보는 해당 기관에서 직접 확인하시길 권장합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-logo">🌱 쑥쑥이</div>
+        <p class="footer-desc">임신부터 취학 전까지, 우리 아이 성장 파트너</p>
+        <div class="footer-links">
+          <a href="#">이용약관</a>
+          <a href="#">개인정보처리방침</a>
+          <a href="#">문의하기</a>
+        </div>
+        <p class="footer-copy">© 2026 suksuki.com All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
