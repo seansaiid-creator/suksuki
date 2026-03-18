@@ -269,18 +269,32 @@ function shareCurrentPage(title, desc) {
   }
 }
 
-// ===== 전역 노출 =====
-window.suksuki = { calcMonths, calcDday, fmtDate, getThisMonthTasks, showToast, shareInstagram, shareCurrentPage, shareKakao, copyLink, K };
+// ===== 전역 노출 (즉시 실행) =====
+window.suksuki = {
+  K,
+  calcMonths,
+  calcDday,
+  fmtDate,
+  getThisMonthTasks,
+  showToast,
+  shareInstagram,
+  shareCurrentPage,
+  shareKakao,
+  copyLink,
+};
 
 // ===== 페이지 로드 =====
-document.addEventListener('DOMContentLoaded', () => {
-  // 날짜 입력 범위 설정
+function _suksukiInit() {
   const today = new Date().toISOString().split('T')[0];
   const babyBirth = document.getElementById('baby-birth');
   const dueDate   = document.getElementById('due-date');
   if (babyBirth) babyBirth.max = today;
   if (dueDate)   dueDate.min   = today;
-
-  // 저장된 정보 있으면 대시보드 표시
   if (localStorage.getItem(K.TYPE)) showDashboard();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _suksukiInit);
+} else {
+  _suksukiInit();
+}
