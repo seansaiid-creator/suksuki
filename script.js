@@ -1,149 +1,23 @@
-// ===== 로컬스토리지 키 =====
-const KEYS = {
-  TYPE: 'suksuki_type',        // 'baby' or 'pregnant'
-  BABY_NAME: 'suksuki_baby_name',
-  BABY_BIRTH: 'suksuki_baby_birth',
-  BABY_GENDER: 'suksuki_baby_gender',
-  MOM_NAME: 'suksuki_mom_name',
-  DUE_DATE: 'suksuki_due_date',
-  DAD_CONTACT: 'suksuki_dad_contact',
+/* ===== 쑥쑥이 공통 스크립트 ===== */
+
+const K = {
+  TYPE:       'sk_type',
+  BABY_NAME:  'sk_baby_name',
+  BABY_BIRTH: 'sk_baby_birth',
+  BABY_GENDER:'sk_baby_gender',
+  MOM_NAME:   'sk_mom_name',
+  DUE_DATE:   'sk_due_date',
+  DAD_CONTACT:'sk_dad_contact',
 };
-
-// ===== 페이지 로드 시 =====
-document.addEventListener('DOMContentLoaded', () => {
-  // 날짜 입력 최대/최소값 설정
-  const today = new Date().toISOString().split('T')[0];
-  const babyBirthInput = document.getElementById('baby-birth');
-  const dueDateInput = document.getElementById('due-date');
-  if (babyBirthInput) babyBirthInput.max = today;
-  if (dueDateInput) dueDateInput.min = today;
-
-  // 저장된 정보 불러오기
-  loadSavedInfo();
-});
-
-// ===== 탭 전환 =====
-function switchTab(type, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-' + type).classList.add('active');
-}
-
-// ===== 성별 선택 =====
-let selectedGender = '';
-
-function selectGender(gender) {
-  selectedGender = gender;
-  document.getElementById('btn-boy').classList.remove('selected');
-  document.getElementById('btn-girl').classList.remove('selected');
-  document.getElementById('btn-' + gender).classList.add('selected');
-}
-
-// ===== 아이 정보 저장 =====
-function saveBabyInfo() {
-  const name = document.getElementById('baby-name').value.trim();
-  const birth = document.getElementById('baby-birth').value;
-
-  if (!birth) {
-    alert('아이 생년월일을 입력해주세요 🍼');
-    return;
-  }
-
-  localStorage.setItem(KEYS.TYPE, 'baby');
-  localStorage.setItem(KEYS.BABY_NAME, name || '우리아이');
-  localStorage.setItem(KEYS.BABY_BIRTH, birth);
-  localStorage.setItem(KEYS.BABY_GENDER, selectedGender);
-
-  showCurrentInfo();
-  scrollToCurrentInfo();
-}
-
-// ===== 임신 정보 저장 =====
-function savePregnantInfo() {
-  const momName = document.getElementById('mom-name').value.trim();
-  const dueDate = document.getElementById('due-date').value;
-  const dadContact = document.getElementById('dad-contact').value.trim();
-
-  if (!dueDate) {
-    alert('출산 예정일을 입력해주세요 🤰');
-    return;
-  }
-
-  localStorage.setItem(KEYS.TYPE, 'pregnant');
-  localStorage.setItem(KEYS.MOM_NAME, momName || '예비맘');
-  localStorage.setItem(KEYS.DUE_DATE, dueDate);
-  localStorage.setItem(KEYS.DAD_CONTACT, dadContact);
-
-  // D-day 페이지로 이동
-  window.location.href = 'dday.html';
-}
-
-// ===== 저장된 정보 불러오기 =====
-function loadSavedInfo() {
-  const type = localStorage.getItem(KEYS.TYPE);
-  if (!type) return;
-
-  showCurrentInfo();
-}
-
-// ===== 현재 아이 정보 표시 =====
-function showCurrentInfo() {
-  const type = localStorage.getItem(KEYS.TYPE);
-  const currentSection = document.getElementById('current-info');
-  const setupSection = document.getElementById('setup');
-
-  if (!currentSection) return;
-
-  if (type === 'baby') {
-    const name = localStorage.getItem(KEYS.BABY_NAME) || '우리아이';
-    const birth = localStorage.getItem(KEYS.BABY_BIRTH);
-    const months = calcMonths(birth);
-
-    document.getElementById('display-name').textContent = name;
-    document.getElementById('display-months').textContent =
-      `현재 ${months}개월 (${formatBirth(birth)})`;
-
-    currentSection.style.display = 'block';
-    if (setupSection) setupSection.style.display = 'none';
-
-  } else if (type === 'pregnant') {
-    const momName = localStorage.getItem(KEYS.MOM_NAME) || '예비맘';
-    const dueDate = localStorage.getItem(KEYS.DUE_DATE);
-    const dday = calcDday(dueDate);
-
-    document.getElementById('display-name').textContent = momName;
-    document.getElementById('display-months').textContent =
-      `출산 D-${dday} (${formatBirth(dueDate)})`;
-
-    currentSection.style.display = 'block';
-    if (setupSection) setupSection.style.display = 'none';
-  }
-}
-
-// ===== 정보 수정 =====
-function editInfo() {
-  localStorage.removeItem(KEYS.TYPE);
-  localStorage.removeItem(KEYS.BABY_NAME);
-  localStorage.removeItem(KEYS.BABY_BIRTH);
-  localStorage.removeItem(KEYS.BABY_GENDER);
-  localStorage.removeItem(KEYS.MOM_NAME);
-  localStorage.removeItem(KEYS.DUE_DATE);
-  localStorage.removeItem(KEYS.DAD_CONTACT);
-
-  document.getElementById('current-info').style.display = 'none';
-  document.getElementById('setup').style.display = 'block';
-  scrollToSetup();
-}
 
 // ===== 개월수 계산 =====
 function calcMonths(birthDate) {
   if (!birthDate) return 0;
   const birth = new Date(birthDate);
   const now = new Date();
-  const months = (now.getFullYear() - birth.getFullYear()) * 12
-    + (now.getMonth() - birth.getMonth());
-  return Math.max(0, months);
+  const m = (now.getFullYear() - birth.getFullYear()) * 12
+           + (now.getMonth() - birth.getMonth());
+  return Math.max(0, m);
 }
 
 // ===== D-day 계산 =====
@@ -151,60 +25,158 @@ function calcDday(dueDate) {
   if (!dueDate) return 0;
   const due = new Date(dueDate);
   const now = new Date();
-  const diff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
-  return Math.max(0, diff);
+  now.setHours(0,0,0,0);
+  due.setHours(0,0,0,0);
+  return Math.max(0, Math.round((due - now) / 86400000));
 }
 
 // ===== 날짜 포맷 =====
-function formatBirth(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return `${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일`;
 }
 
-// ===== 스크롤 =====
-function scrollToSetup() {
-  document.getElementById('setup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+// ===== 이번달 챙겨야 할 것 (개월수 기반) =====
+function getThisMonthTasks(months) {
+  const tasks = {
+    0:  ['💉 B형간염 1차 접종', '🏥 신생아 청각선별검사', '👁️ 신생아 안과검진'],
+    1:  ['💉 BCG 접종 (4주 이내)', '💉 B형간염 2차 접종', '🏥 1개월 영유아 검진'],
+    2:  ['💉 DTaP 1차 / 폴리오 1차 / Hib 1차', '💉 PCV 1차 (폐렴구균)', '💉 로타바이러스 1차'],
+    4:  ['💉 DTaP 2차 / 폴리오 2차 / Hib 2차', '💉 PCV 2차', '💉 로타바이러스 2차'],
+    6:  ['💉 DTaP 3차 / Hib 3차 / PCV 3차', '💉 B형간염 3차 접종', '💉 인플루엔자 접종 (10월~)'],
+    9:  ['🏥 9개월 영유아 검진', '📏 성장 발달 확인 (기기/잡고서기)'],
+    12: ['💉 MMR 1차 / 수두 접종', '💉 일본뇌염 1차', '🏥 12개월 영유아 검진', '🍽️ 이유식→유아식 전환 시작'],
+    15: ['💉 DTaP 4차 / Hib 4차 / PCV 4차', '💉 A형간염 1차', '🏥 18개월 전 영유아 검진'],
+    18: ['🏥 18개월 영유아 검진', '🗣️ 단어 10개 이상 말하는지 확인', '💉 A형간염 2차 (6개월 후)'],
+    24: ['🏥 24개월 영유아 검진', '🗣️ 두 단어 문장 사용 확인', '🦷 치과 첫 방문 권장'],
+    36: ['🏥 36개월 영유아 검진', '💉 일본뇌염 추가', '🧠 인지발달 & 사회성 체크'],
+    48: ['🏥 48개월 영유아 검진', '👁️ 시력검사 권장', '🦷 치과 정기검진'],
+    54: ['💉 DTaP 5차 / 폴리오 4차', '💉 MMR 2차', '🏥 54개월 영유아 검진'],
+    60: ['🏥 60개월 영유아 검진', '🎒 초등학교 입학 준비 시작', '💉 취학 전 예방접종 확인'],
+  };
+
+  // 가장 가까운 월령 찾기
+  const keys = Object.keys(tasks).map(Number).sort((a,b) => a-b);
+  let matched = keys[0];
+  for (const k of keys) {
+    if (months >= k) matched = k;
+  }
+  return tasks[matched] || ['📋 현재 개월수에 맞는 정보를 확인해보세요'];
 }
 
-function scrollToCurrentInfo() {
-  document.getElementById('current-info')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+// ===== 탭 전환 =====
+function switchTab(type) {
+  document.getElementById('panel-baby').classList.toggle('hidden', type !== 'baby');
+  document.getElementById('panel-pregnant').classList.toggle('hidden', type !== 'pregnant');
+  document.getElementById('tab-btn-baby').classList.toggle('active', type === 'baby');
+  document.getElementById('tab-btn-pregnant').classList.toggle('active', type === 'pregnant');
+}
+
+// ===== 성별 선택 =====
+let selectedGender = '';
+function selectGender(g) {
+  selectedGender = g;
+  document.getElementById('btn-boy').classList.toggle('selected', g === 'boy');
+  document.getElementById('btn-girl').classList.toggle('selected', g === 'girl');
+}
+
+// ===== 아이 정보 저장 =====
+function saveBabyInfo() {
+  const birth = document.getElementById('baby-birth').value;
+  if (!birth) { showToast('아이 생년월일을 입력해주세요 🍼'); return; }
+  const name = document.getElementById('baby-name').value.trim() || '우리아이';
+  localStorage.setItem(K.TYPE, 'baby');
+  localStorage.setItem(K.BABY_NAME, name);
+  localStorage.setItem(K.BABY_BIRTH, birth);
+  localStorage.setItem(K.BABY_GENDER, selectedGender);
+  showDashboard();
+}
+
+// ===== 임신 정보 저장 =====
+function savePregnantInfo() {
+  const due = document.getElementById('due-date').value;
+  if (!due) { showToast('출산 예정일을 입력해주세요 🤰'); return; }
+  const momName = document.getElementById('mom-name').value.trim() || '예비맘';
+  const dadContact = document.getElementById('dad-contact').value.trim();
+  localStorage.setItem(K.TYPE, 'pregnant');
+  localStorage.setItem(K.MOM_NAME, momName);
+  localStorage.setItem(K.DUE_DATE, due);
+  localStorage.setItem(K.DAD_CONTACT, dadContact);
+  window.location.href = 'dday.html';
+}
+
+// ===== 대시보드 표시 =====
+function showDashboard() {
+  const type = localStorage.getItem(K.TYPE);
+  if (!type) return;
+
+  const onboarding = document.getElementById('view-onboarding');
+  const dashboard  = document.getElementById('view-dashboard');
+  if (!onboarding || !dashboard) return;
+
+  if (type === 'baby') {
+    const name   = localStorage.getItem(K.BABY_NAME) || '우리아이';
+    const birth  = localStorage.getItem(K.BABY_BIRTH);
+    const gender = localStorage.getItem(K.BABY_GENDER);
+    const months = calcMonths(birth);
+    const gIcon  = gender === 'boy' ? ' 👦' : gender === 'girl' ? ' 👧' : '';
+
+    document.getElementById('dash-name').textContent   = name + gIcon;
+    document.getElementById('dash-months').textContent = `현재 ${months}개월 (${fmtDate(birth)})`;
+
+    // 이번 달 할 것
+    const tasks = getThisMonthTasks(months);
+    const listEl = document.getElementById('this-month-list');
+    if (listEl) {
+      listEl.innerHTML = tasks.map(t =>
+        `<div class="this-month-item">${t}</div>`
+      ).join('');
+    }
+
+    onboarding.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+
+  } else if (type === 'pregnant') {
+    window.location.href = 'dday.html';
+  }
+}
+
+// ===== 정보 초기화 =====
+function resetInfo() {
+  Object.values(K).forEach(k => localStorage.removeItem(k));
+  const onboarding = document.getElementById('view-onboarding');
+  const dashboard  = document.getElementById('view-dashboard');
+  if (onboarding) onboarding.classList.remove('hidden');
+  if (dashboard)  dashboard.classList.add('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ===== 카카오톡 공유 =====
 function shareKakao() {
-  const url = encodeURIComponent(window.location.origin);
-  const text = encodeURIComponent('임신부터 취학 전까지 육아 정보를 한 곳에서! 쑥쑥이 🌱');
-
-  // 카카오톡 SDK가 있으면 사용, 없으면 URL 복사로 대체
-  if (window.Kakao && window.Kakao.isInitialized()) {
+  const url = 'https://suksuki.com';
+  if (window.Kakao?.isInitialized?.()) {
     window.Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
         title: '쑥쑥이 - 우리 아이 성장 파트너',
         description: '임신부터 취학 전까지, 예방접종·발달정보·이유식·지원금을 한 곳에서!',
-        imageUrl: 'https://suksuki.com/images/og-image.png',
-        link: { mobileWebUrl: 'https://suksuki.com', webUrl: 'https://suksuki.com' },
+        imageUrl: url + '/images/og-image.png',
+        link: { mobileWebUrl: url, webUrl: url },
       },
-      buttons: [{
-        title: '쑥쑥이 보러가기',
-        link: { mobileWebUrl: 'https://suksuki.com', webUrl: 'https://suksuki.com' },
-      }],
+      buttons: [{ title: '쑥쑥이 보러가기', link: { mobileWebUrl: url, webUrl: url } }],
     });
   } else {
-    // 카카오 SDK 없으면 링크 복사
     copyLink();
-    alert('링크가 복사됐어요! 카카오톡에서 붙여넣기 해주세요 💬');
+    showToast('링크 복사됐어요! 카카오톡에 붙여넣기 해주세요 💬');
   }
 }
 
 // ===== 링크 복사 =====
 function copyLink() {
-  const url = window.location.origin || 'https://suksuki.com';
+  const url = location.origin || 'https://suksuki.com';
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => {
-      showToast('링크가 복사됐어요! 🔗');
-    });
+    navigator.clipboard.writeText(url).then(() => showToast('링크가 복사됐어요! 🔗'));
   } else {
     const el = document.createElement('textarea');
     el.value = url;
@@ -217,100 +189,98 @@ function copyLink() {
 }
 
 // ===== 토스트 메시지 =====
-function showToast(msg) {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = msg;
-  toast.style.cssText = `
-    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-    background: #1E293B; color: #fff; padding: 12px 24px;
-    border-radius: 100px; font-size: 14px; font-weight: 600;
-    z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    animation: fadeInUp 0.3s ease;
-  `;
-
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+function showToast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.add('hidden'), duration);
 }
 
-// ===== 인스타그램 공유용 D-day 카드 이미지 생성 =====
-function generateDdayCard(dday, name) {
+// ===== 인스타 D-day 카드 생성 & 공유 =====
+function shareInstagram(dday, name) {
   const canvas = document.createElement('canvas');
-  canvas.width = 1080;
-  canvas.height = 1080;
+  canvas.width = 1080; canvas.height = 1080;
   const ctx = canvas.getContext('2d');
 
   // 배경
-  const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
-  gradient.addColorStop(0, '#1A3C34');
-  gradient.addColorStop(1, '#2C7A6F');
-  ctx.fillStyle = gradient;
+  const grad = ctx.createLinearGradient(0, 0, 1080, 1080);
+  grad.addColorStop(0, '#1A3C34');
+  grad.addColorStop(1, '#2C7A6F');
+  ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 1080, 1080);
 
-  // 원형 장식
-  ctx.beginPath();
-  ctx.arc(900, 200, 300, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.05)';
-  ctx.fill();
+  // 장식 원
+  ctx.beginPath(); ctx.arc(950, 150, 320, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(100, 950, 200, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(244,162,97,0.1)'; ctx.fill();
 
-  // 텍스트
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = 'bold 40px sans-serif';
+  // 로고
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = 'bold 44px sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('🌱 쑥쑥이', 540, 300);
+  ctx.fillText('🌱 쑥쑥이', 540, 280);
 
+  // D-day 숫자
   ctx.fillStyle = '#F4A261';
-  ctx.font = 'bold 80px sans-serif';
-  ctx.fillText(`D - ${dday}`, 540, 480);
+  ctx.font = 'bold 200px sans-serif';
+  ctx.fillText(`D-${dday}`, 540, 560);
 
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 50px sans-serif';
-  ctx.fillText(`${name || '우리 아이'} 출산까지`, 540, 580);
+  // 이름
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 56px sans-serif';
+  ctx.fillText(`${name || '우리 아이'} 출산까지`, 540, 660);
 
+  // 날짜
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.font = '32px sans-serif';
-  ctx.fillText('suksuki.com', 540, 800);
+  ctx.font = '36px sans-serif';
+  ctx.fillText(new Date().toLocaleDateString('ko-KR'), 540, 740);
 
-  return canvas.toDataURL('image/png');
-}
+  // URL
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '28px sans-serif';
+  ctx.fillText('suksuki.com', 540, 900);
 
-// ===== 인스타그램 공유 =====
-function shareInstagram(dday, name) {
-  const imageData = generateDdayCard(dday, name);
-
-  // 이미지 다운로드
+  // 다운로드
   const link = document.createElement('a');
   link.download = `suksuki_dday_${dday}.png`;
-  link.href = imageData;
+  link.href = canvas.toDataURL('image/png');
   link.click();
 
-  // 인스타 앱 열기 (모바일)
-  setTimeout(() => {
-    window.location.href = 'instagram://';
-  }, 1000);
-
-  showToast('이미지 저장됐어요! 인스타에 올려주세요 📸');
+  // 모바일이면 인스타 앱 열기 시도
+  if (/iPhone|iPad|Android/i.test(navigator.userAgent)) {
+    setTimeout(() => { window.location.href = 'instagram://'; }, 800);
+  }
+  showToast('이미지 저장됐어요! 인스타에 올려주세요 📸', 3000);
 }
 
-// ===== 전역에서 사용할 유틸 =====
-window.suksuki = {
-  calcMonths,
-  calcDday,
-  formatBirth,
-  KEYS,
-  showToast,
-  shareInstagram,
-  shareKakao,
-  copyLink,
-};
+// ===== 페이지 공유 버튼 (각 페이지에서 사용) =====
+function shareCurrentPage(title, desc) {
+  if (navigator.share) {
+    navigator.share({
+      title: title || '쑥쑥이',
+      text: desc || '우리 아이 성장 파트너 쑥쑥이',
+      url: location.href,
+    }).catch(() => copyLink());
+  } else {
+    copyLink();
+  }
+}
+
+// ===== 전역 노출 =====
+window.suksuki = { calcMonths, calcDday, fmtDate, getThisMonthTasks, showToast, shareInstagram, shareCurrentPage, shareKakao, copyLink, K };
+
+// ===== 페이지 로드 =====
+document.addEventListener('DOMContentLoaded', () => {
+  // 날짜 입력 범위 설정
+  const today = new Date().toISOString().split('T')[0];
+  const babyBirth = document.getElementById('baby-birth');
+  const dueDate   = document.getElementById('due-date');
+  if (babyBirth) babyBirth.max = today;
+  if (dueDate)   dueDate.min   = today;
+
+  // 저장된 정보 있으면 대시보드 표시
+  if (localStorage.getItem(K.TYPE)) showDashboard();
+});
