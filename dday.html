@@ -307,10 +307,10 @@
         </div>
 
         <button class="btn-insta" onclick="doShareInstagram()">
-          📸 인스타그램 카드 저장하기
+          📸 인스타그램에 D-day 카드 업로드하기
         </button>
         <div class="share-row-2">
-          <button class="btn-kakao" style="flex:1;" onclick="shareKakao()">💬 카카오톡</button>
+          <button class="btn-kakao" style="flex:1;" onclick="shareDdayKakao()">💬 카카오톡으로 D-day 공유하기</button>
           <button class="btn-copy" style="flex:1;" onclick="copyLink()">🔗 링크 복사</button>
         </div>
       </div>
@@ -409,12 +409,15 @@
     }
 
     function getWeekFromDueDate(dueDate) {
+      // 출산예정일 기준 역산: 예정일 = 마지막생리일 + 280일
+      // 즉 마지막생리일 = 예정일 - 280일
       const due = new Date(dueDate);
+      const lmp = new Date(due.getTime() - 280 * 24 * 60 * 60 * 1000);
       const now = new Date();
-      const daysLeft = Math.round((due - now) / 86400000);
-      const totalDays = 280; // 40주
-      const daysElapsed = totalDays - daysLeft;
-      return Math.max(1, Math.min(40, Math.floor(daysElapsed / 7)));
+      now.setHours(0,0,0,0);
+      const daysElapsed = Math.round((now - lmp) / (24 * 60 * 60 * 1000));
+      const week = Math.floor(daysElapsed / 7);
+      return Math.max(1, Math.min(40, week));
     }
 
     function getTrimester(week) {
@@ -441,10 +444,16 @@
       const fetus = getFetusData(week);
       const momName = localStorage.getItem(window.suksuki.K.MOM_NAME) || '예비맘';
 
-      // D-day 표시
-      document.getElementById('dday-number').textContent = dday > 0 ? `D-${dday}` : 'D-Day!';
-      document.getElementById('dday-date').textContent   = `${window.suksuki.fmtDate(dueDate)} 출산 예정`;
-      document.getElementById('dday-week').textContent   = `임신 ${week}주차`;
+      // 5번: "출산까지" → "우리 [태명] 만나기"
+      const babyNick = momName && momName !== '예비맘' ? momName : '아가';
+      document.getElementById('dday-label').textContent  = '우리 ' + babyNick + ' 만나기';
+
+      // D-day 표시 (4번: 정확한 계산)
+      document.getElementById('dday-number').textContent = dday > 0 ? 'D-' + dday : 'D-Day!';
+      document.getElementById('dday-date').textContent   = window.suksuki.fmtDate(dueDate) + ' 출산 예정';
+
+      // 6번: 주수/분기 정확 표시
+      document.getElementById('dday-week').textContent      = '임신 ' + week + '주차';
       document.getElementById('dday-trimester').textContent = getTrimester(week);
 
       // 태아 정보
@@ -454,17 +463,45 @@
       document.getElementById('fetus-desc').textContent   = fetus.desc;
 
       // 미리보기
-      document.getElementById('preview-dday').textContent = dday > 0 ? `D-${dday}` : 'D-Day!';
-      document.getElementById('preview-name').textContent = `${momName} 출산까지`;
+      document.getElementById('preview-dday').textContent = dday > 0 ? 'D-' + dday : 'D-Day!';
+      document.getElementById('preview-name').textContent = '우리 ' + babyNick + ' 만나기';
 
       // 아빠 연락처 미리 채우기
       if (dadContact) document.getElementById('dad-contact-input').value = dadContact;
     }
 
+    // 8번: 카카오톡 D-day 공유 (웹 공유 API 활용)
+    function shareDdayKakao() {
+      const dday    = window.suksuki.calcDday(localStorage.getItem(window.suksuki.K.DUE_DATE));
+      const momName = localStorage.getItem(window.suksuki.K.MOM_NAME) || '예비맘';
+      const babyNick = momName && momName !== '예비맘' ? momName : '아가';
+      const text = '우리 ' + babyNick + ' 만나기 D-' + dday + '!\n\n쑥쑥이에서 함께 준비해요 🌱\nhttps://suksuki.com/dday.html';
+
+      if (navigator.share) {
+        navigator.share({
+          title: '쑥쑥이 D-day',
+          text: text,
+          url: 'https://suksuki.com/dday.html'
+        }).catch(function() {
+          // 공유 실패시 클립보드 복사
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(function() {
+              window.suksuki.showToast('메시지 복사됐어요! 카카오톡에 붙여넣기 해주세요 💬', 3000);
+            });
+          }
+        });
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+          window.suksuki.showToast('메시지 복사됐어요! 카카오톡에 붙여넣기 해주세요 💬', 3000);
+        });
+      }
+    }
+
     function doShareInstagram() {
       const dday    = window.suksuki.calcDday(localStorage.getItem(window.suksuki.K.DUE_DATE));
       const momName = localStorage.getItem(window.suksuki.K.MOM_NAME) || '예비맘';
-      window.suksuki.shareInstagram(dday, momName + ' 출산');
+      const babyNick = momName && momName !== '예비맘' ? momName : '아가';
+      window.suksuki.shareInstagram(dday, '우리 ' + babyNick + ' 만나기');
     }
 
     function sendDadAlert() {

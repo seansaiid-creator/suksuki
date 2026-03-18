@@ -65,12 +65,21 @@
 
         <div id="panel-pregnant" class="hidden">
           <div class="form-group">
-            <label class="form-label">엄마 이름 <span class="opt">선택</span></label>
-            <input class="form-input" type="text" id="mom-name" placeholder="예: 김지영" maxlength="10" />
+            <label class="form-label">태명 <span class="opt">선택</span></label>
+            <input class="form-input" type="text" id="mom-name" placeholder="예: 콩이, 복덩이, 하늘이" maxlength="10" />
+            <p class="form-hint">💌 태명을 입력하면 D-day 화면에 감성적으로 표시돼요</p>
           </div>
           <div class="form-group">
             <label class="form-label">출산 예정일 <span class="req">*</span></label>
-            <input class="form-input" type="date" id="due-date" />
+            <div style="display:flex;gap:8px;">
+              <select class="form-input" id="due-year" style="flex:1.2;">
+              </select>
+              <select class="form-input" id="due-month" style="flex:1;">
+              </select>
+              <select class="form-input" id="due-day" style="flex:1;">
+              </select>
+            </div>
+            <input type="hidden" id="due-date" />
           </div>
           <div class="form-group">
             <label class="form-label">아빠 연락처 <span class="opt">선택</span></label>
@@ -135,7 +144,7 @@
       <div id="dday-hero-home" class="hidden">
         <a href="dday.html" style="text-decoration:none;">
           <div class="dday-home-hero">
-            <p class="dday-home-label">출산까지</p>
+            <p class="dday-home-label" id="dday-home-label">출산까지</p>
             <div class="dday-home-number" id="dday-home-number">D-0</div>
             <p class="dday-home-date" id="dday-home-date">-</p>
             <div class="dday-home-chips">

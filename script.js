@@ -159,12 +159,19 @@ function showDashboard() {
     var week        = Math.max(1, Math.min(40, Math.floor(daysElapsed / 7)));
     if (ddayWeek) ddayWeek.textContent = '임신 ' + week + '주차';
 
-    // 카드는 엄마 이름으로 표시
+    // 태명 처리
+    var babyNick = momName && momName !== '예비맘' ? momName : '아가';
+
+    // 홈 D-day 레이블을 "우리 [태명] 만나기"로 변경
+    var ddayHeroLabel = document.getElementById('dday-home-label');
+    if (ddayHeroLabel) ddayHeroLabel.textContent = '우리 ' + babyNick + ' 만나기';
+
+    // 카드는 태명으로 표시
     var dashLabel = document.getElementById('dash-label');
     var dashName2   = document.getElementById('dash-name');
     var dashMonths2 = document.getElementById('dash-months');
-    if (dashLabel)  dashLabel.textContent  = '예비맘';
-    if (dashName2)   dashName2.textContent   = momName + ' 🤰';
+    if (dashLabel)  dashLabel.textContent  = '태명';
+    if (dashName2)   dashName2.textContent   = babyNick + ' 🤰';
     if (dashMonths2) dashMonths2.textContent = '출산 D-' + dday + ' (' + fmtDate(dueDate) + ')';
 
     var listEl2 = document.getElementById('this-month-list');
@@ -325,24 +332,28 @@ function shareCurrentPage(title, desc) {
 // suksuki.com 에서만 동작. 개발/미리보기 환경에서는 실행 안 함
 function _openExternalBrowser() {
   try {
-    var ua = navigator.userAgent.toLowerCase();
-    var isKakao = ua.indexOf('kakaotalk') > -1;
+    var ua = navigator.userAgent;
+    var uaLower = ua.toLowerCase();
+    var isKakao = uaLower.indexOf('kakaotalk') > -1;
+    if (!isKakao) return;
+
     var host = location.hostname;
     var isSuksukiDomain = host === 'suksuki.com' || host === 'www.suksuki.com';
-
-    if (!isKakao || !isSuksukiDomain) return;
+    if (!isSuksukiDomain) return;
 
     var currentUrl = location.href;
 
-    if (ua.indexOf('android') > -1) {
-      // 안드로이드: 크롬으로 열기 시도, 실패시 기본 브라우저
+    if (/android/i.test(ua)) {
+      // 안드로이드: intent scheme으로 외부 브라우저 강제 실행
       var intentUrl = 'intent://' + currentUrl.replace(/^https?:\/\//i, '')
         + '#Intent;scheme=https;action=android.intent.action.VIEW;'
-        + 'category=android.intent.category.BROWSABLE;package=com.android.chrome;end';
-      location.href = intentUrl;
-    } else if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1) {
-      // iOS: safari로 열기
-      location.href = currentUrl.replace(/^https?:\/\//i, 'safari-https://');
+        + 'category=android.intent.category.BROWSABLE;'
+        + 'package=com.android.chrome;end';
+      location.replace(intentUrl);
+    } else if (/iphone|ipad|ipod/i.test(ua)) {
+      // iOS: kakaotalk 내부에서 safari로 열기
+      // 방법1: fakeprotocol로 safari 강제 실행
+      location.href = 'safari-https://' + currentUrl.replace(/^https?:\/\//i, '');
     }
   } catch(e) { /* 무시 */ }
 }
@@ -361,6 +372,67 @@ window.suksuki = {
   copyLink: copyLink,
 };
 
+// ===== 2번: 날짜 select 초기화 =====
+function _initDateSelects() {
+  var yearEl  = document.getElementById('due-year');
+  var monthEl = document.getElementById('due-month');
+  var dayEl   = document.getElementById('due-day');
+  if (!yearEl || !monthEl || !dayEl) return;
+
+  var today = new Date();
+  var curYear = today.getFullYear();
+
+  // 연도 (올해 ~ +2년)
+  yearEl.innerHTML = '';
+  for (var y = curYear; y <= curYear + 2; y++) {
+    var opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '년';
+    yearEl.appendChild(opt);
+  }
+
+  // 월 (1~12)
+  monthEl.innerHTML = '';
+  for (var m = 1; m <= 12; m++) {
+    var opt2 = document.createElement('option');
+    opt2.value = m; opt2.textContent = m + '월';
+    if (m === today.getMonth() + 2) opt2.selected = true; // 다음달 기본
+    monthEl.appendChild(opt2);
+  }
+
+  // 일 동적 생성 함수
+  function updateDays() {
+    var y = parseInt(yearEl.value);
+    var m = parseInt(monthEl.value);
+    var daysInMonth = new Date(y, m, 0).getDate();
+    var curDay = parseInt(dayEl.value) || 1;
+    dayEl.innerHTML = '';
+    for (var d = 1; d <= daysInMonth; d++) {
+      var opt3 = document.createElement('option');
+      opt3.value = d; opt3.textContent = d + '일';
+      if (d === curDay) opt3.selected = true;
+      dayEl.appendChild(opt3);
+    }
+    _syncDueDate();
+  }
+
+  // hidden input 동기화
+  function _syncDueDate() {
+    var y = parseInt(yearEl.value);
+    var m = parseInt(monthEl.value);
+    var d = parseInt(dayEl.value);
+    var mm = m < 10 ? '0' + m : '' + m;
+    var dd = d < 10 ? '0' + d : '' + d;
+    var hiddenDue = document.getElementById('due-date');
+    if (hiddenDue) hiddenDue.value = y + '-' + mm + '-' + dd;
+  }
+
+  yearEl.addEventListener('change', updateDays);
+  monthEl.addEventListener('change', updateDays);
+  dayEl.addEventListener('change', _syncDueDate);
+
+  updateDays(); // 초기 실행
+}
+
 // ===== 페이지 초기화 =====
 function _suksukiInit() {
   try {
@@ -369,9 +441,11 @@ function _suksukiInit() {
 
     var today    = new Date().toISOString().split('T')[0];
     var babyBirth = document.getElementById('baby-birth');
-    var dueDate   = document.getElementById('due-date');
     if (babyBirth) babyBirth.max = today;
-    if (dueDate)   dueDate.min   = today;
+
+    // 날짜 select 초기화
+    _initDateSelects();
+
     if (localStorage.getItem(K.TYPE)) showDashboard();
   } catch(e) { /* 무시 */ }
 }
