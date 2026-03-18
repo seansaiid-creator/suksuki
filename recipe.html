@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>이유식·유아식 레시피 - 쑥쑥이</title>
+  <meta name="description" content="아이 개월수에 맞는 이유식·유아식 레시피. 냉장고 재료로 만들 수 있는 레시피를 추천해드려요." />
+  <meta name="theme-color" content="#1A3C34" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    .recipe-hero {
+      background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+      padding: 24px 20px 28px;
+      color: #fff;
+    }
+
+    .recipe-hero-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .recipe-hero-desc  { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+
+    /* 재료 입력 */
+    .ingredient-card {
+      background: var(--card);
+      margin: 16px 16px 0;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .ingredient-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+
+    .ingredient-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .ingredient-input {
+      flex: 1;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      outline: none;
+      background: var(--bg);
+      min-height: 50px;
+    }
+
+    .ingredient-input:focus { border-color: var(--primary); }
+
+    .btn-add-ingredient {
+      background: var(--primary);
+      color: #fff;
+      padding: 13px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      min-height: 50px;
+      white-space: nowrap;
+    }
+
+    .ingredient-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      min-height: 36px;
+    }
+
+    .ingredient-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 100px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .ingredient-tag-remove {
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--primary);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .ingredient-empty {
+      font-size: 13px;
+      color: var(--text-light);
+      font-style: italic;
+    }
+
+    .btn-find-recipe {
+      width: 100%;
+      padding: 15px;
+      background: var(--secondary);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      min-height: 52px;
+    }
+
+    .btn-find-recipe:active { opacity: 0.85; }
+
+    /* 필터 탭 */
+    .filter-wrap {
+      padding: 16px 16px 0;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .filter-wrap::-webkit-scrollbar { display: none; }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-mid);
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      white-space: nowrap;
+      min-height: 38px;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* 레시피 카드 */
+    .recipe-list { padding: 16px 16px 0; }
+
+    .recipe-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+    }
+
+    .recipe-card.highlighted {
+      border-color: var(--secondary);
+      background: #FFFAF5;
+    }
+
+    .recipe-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .recipe-card-left { flex: 1; }
+
+    .recipe-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .recipe-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .recipe-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+
+    .tag-months { background: var(--primary-light); color: var(--primary); }
+    .tag-match  { background: #FFF0E0; color: var(--accent); }
+    .tag-type   { background: var(--bg); color: var(--text-mid); border: 1px solid var(--border); }
+
+    .recipe-emoji { font-size: 36px; flex-shrink: 0; }
+
+    .recipe-ingredients {
+      font-size: 12px;
+      color: var(--text-mid);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .recipe-ingredients strong { color: var(--accent); }
+
+    .recipe-toggle {
+      width: 100%;
+      padding: 10px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      border: 1px solid var(--border);
+      min-height: 42px;
+    }
+
+    .recipe-steps {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .recipe-steps.open { display: block; }
+
+    .recipe-step {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+
+    .recipe-step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .recipe-share-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-mid);
+      min-height: 38px;
+    }
+
+    /* 설정 없을 때 */
+    .setup-prompt {
+      margin: 20px 16px 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .setup-prompt-icon  { font-size: 48px; margin-bottom: 14px; }
+    .setup-prompt-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .setup-prompt-desc  { font-size: 14px; color: var(--text-light); line-height: 1.7; margin-bottom: 20px; }
+
+    .no-recipe-msg {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-light);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">🌱 <span>쑥쑥이</span></a>
+      <span class="header-sub">이유식·유아식 레시피</span>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- 설정 없을 때 -->
+    <div id="view-no-data" class="hidden">
+      <div class="setup-prompt">
+        <div class="setup-prompt-icon">🍳</div>
+        <h2 class="setup-prompt-title">아이 정보를 먼저 등록해주세요</h2>
+        <p class="setup-prompt-desc">아이 생년월일을 입력하면 개월수에 맞는 레시피를 추천해드려요</p>
+        <a href="index.html" class="btn-primary" style="display:block;text-decoration:none;text-align:center;">홈에서 등록하기 →</a>
+      </div>
+    </div>
+
+    <!-- 레시피 메인 뷰 -->
+    <div id="view-recipe" class="hidden">
+
+      <!-- 히어로 -->
+      <div class="recipe-hero">
+        <h1 class="recipe-hero-title">🍳 <span id="baby-name-display">우리아이</span> 맞춤 레시피</h1>
+        <p class="recipe-hero-desc" id="recipe-hero-desc">개월수에 맞는 이유식·유아식을 추천해드려요</p>
+      </div>
+
+      <!-- 재료 입력 -->
+      <div class="ingredient-card">
+        <p class="ingredient-title">🥕 냉장고 재료로 찾기</p>
+        <div class="ingredient-input-row">
+          <input class="ingredient-input" type="text" id="ingredient-input"
+            placeholder="재료 입력 (예: 당근, 감자...)"
+            onkeydown="if(event.key==='Enter') addIngredient()" />
+          <button class="btn-add-ingredient" onclick="addIngredient()">추가</button>
+        </div>
+        <div class="ingredient-tags" id="ingredient-tags">
+          <span class="ingredient-empty">재료를 추가하면 그 재료로 만들 수 있는 레시피를 찾아드려요</span>
+        </div>
+        <button class="btn-find-recipe" onclick="findByIngredients()">🔍 이 재료로 레시피 찾기</button>
+      </div>
+
+      <!-- 필터 -->
+      <div class="filter-wrap">
+        <button class="filter-btn active" onclick="filterRecipe('all', this)">전체</button>
+        <button class="filter-btn" onclick="filterRecipe('초기이유식', this)">초기 이유식</button>
+        <button class="filter-btn" onclick="filterRecipe('중기이유식', this)">중기 이유식</button>
+        <button class="filter-btn" onclick="filterRecipe('후기이유식', this)">후기 이유식</button>
+        <button class="filter-btn" onclick="filterRecipe('유아식', this)">유아식</button>
+      </div>
+
+      <!-- 레시피 목록 -->
+      <div class="recipe-list" id="recipe-list"></div>
+
+    </div>
+
+  </main>
+
+  <!-- 면책 고지 -->
+  <div class="disclaimer">
+    <p>⚠️ 레시피는 <strong>일반적인 참고 자료</strong>입니다. 아이의 알레르기 및 건강 상태에 따라 음식 재료를 조절하세요. 새로운 재료는 소량씩 시작하고, 알레르기 반응 여부를 확인하세요. 건강 관련 사항은 <strong>소아과 전문의와 상담</strong>하시기 바랍니다.</p>
+  </div>
+
+  <footer class="footer">
+    <p class="footer-logo">🌱 쑥쑥이</p>
+    <p class="footer-desc">임신부터 취학 전까지, 우리 아이 성장 파트너</p>
+    <div class="footer-links">
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="#">문의하기</a>
+    </div>
+    <p class="footer-copy">© 2026 suksuki.com</p>
+  </footer>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="bnav"><span class="bnav-icon">🏠</span><span class="bnav-label">홈</span></a>
+    <a href="growth.html" class="bnav"><span class="bnav-icon">📏</span><span class="bnav-label">성장</span></a>
+    <a href="vaccine.html" class="bnav"><span class="bnav-icon">💉</span><span class="bnav-label">접종</span></a>
+    <a href="recipe.html" class="bnav active"><span class="bnav-icon">🍳</span><span class="bnav-label">레시피</span></a>
+    <a href="subsidy.html" class="bnav"><span class="bnav-icon">💰</span><span class="bnav-label">지원금</span></a>
+  </nav>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="script.js"></script>
+  <script>
+    // 레시피 데이터
+    const RECIPES = [
+      // ===== 초기 이유식 (4~6개월) =====
+      {
+        id: 'r01', name: '쌀미음', emoji: '🍚',
+        type: '초기이유식', minMonths: 4, maxMonths: 6,
+        ingredients: ['쌀'],
+        ingredientsFull: '쌀 10g, 물 100ml',
+        steps: ['쌀을 30분 이상 불려요', '불린 쌀을 믹서에 곱게 갈아요', '냄비에 갈은 쌀과 물을 넣고 약불로 저으며 끓여요', '걸쭉해지면 체에 걸러 부드럽게 해요'],
+        tip: '처음 이유식은 쌀미음부터 시작해요. 알레르기 반응이 없는지 3~5일 관찰하세요.',
+      },
+      {
+        id: 'r02', name: '감자미음', emoji: '🥔',
+        type: '초기이유식', minMonths: 5, maxMonths: 6,
+        ingredients: ['감자'],
+        ingredientsFull: '감자 20g, 물 80ml',
+        steps: ['감자를 껍질 벗겨 잘게 썰어요', '부드럽게 삶아요', '삶은 감자와 물을 믹서에 넣고 곱게 갈아요', '약불로 저으며 데워요'],
+        tip: '감자는 포만감이 좋아요. 소화가 잘 되는 재료예요.',
+      },
+      {
+        id: 'r03', name: '애호박미음', emoji: '🥬',
+        type: '초기이유식', minMonths: 5, maxMonths: 6,
+        ingredients: ['애호박'],
+        ingredientsFull: '애호박 20g, 쌀미음 80ml',
+        steps: ['애호박 껍질을 벗기고 씨를 제거해요', '부드럽게 쪄요', '쌀미음에 찐 애호박을 으깨서 섞어요', '농도를 조절하며 먹여요'],
+        tip: '애호박은 소화가 잘 되고 단맛이 있어 아이들이 좋아해요.',
+      },
+      // ===== 중기 이유식 (7~9개월) =====
+      {
+        id: 'r04', name: '닭고기 당근죽', emoji: '🍗',
+        type: '중기이유식', minMonths: 7, maxMonths: 9,
+        ingredients: ['닭가슴살', '당근', '쌀'],
+        ingredientsFull: '불린 쌀 30g, 닭가슴살 20g, 당근 15g, 물 200ml',
+        steps: ['닭가슴살을 삶아서 잘게 다져요', '당근을 작게 깍둑썰어요', '냄비에 쌀, 닭고기, 당근, 물을 넣어요', '중불로 저으며 20분 끓여요', '부드러운 죽 농도로 완성해요'],
+        tip: '단백질 보충에 좋아요. 닭가슴살은 기름기가 적어 이유식에 적합해요.',
+      },
+      {
+        id: 'r05', name: '소고기 브로콜리죽', emoji: '🥦',
+        type: '중기이유식', minMonths: 7, maxMonths: 9,
+        ingredients: ['소고기', '브로콜리', '쌀'],
+        ingredientsFull: '불린 쌀 30g, 소고기 안심 20g, 브로콜리 15g, 물 200ml',
+        steps: ['소고기는 핏물 제거 후 잘게 다져요', '브로콜리는 꽃부분만 잘게 다져요', '냄비에 모든 재료와 물을 넣어요', '약불로 20분 이상 저으며 끓여요'],
+        tip: '소고기는 철분이 풍부해요. 6개월 이후 철분 보충이 중요해요.',
+      },
+      {
+        id: 'r06', name: '감자 당근 으깸', emoji: '🥕',
+        type: '중기이유식', minMonths: 7, maxMonths: 9,
+        ingredients: ['감자', '당근'],
+        ingredientsFull: '감자 40g, 당근 20g, 모유 또는 분유 2스푼',
+        steps: ['감자와 당근을 작게 잘라 부드럽게 쪄요', '따뜻할 때 포크로 으깨요', '모유나 분유를 조금 넣어 부드럽게 해요', '덩어리가 없도록 잘 섞어요'],
+        tip: '손가락 음식 연습을 시작할 수 있어요.',
+      },
+      // ===== 후기 이유식 (10~12개월) =====
+      {
+        id: 'r07', name: '연두부 시금치국', emoji: '🥬',
+        type: '후기이유식', minMonths: 10, maxMonths: 12,
+        ingredients: ['두부', '시금치'],
+        ingredientsFull: '연두부 50g, 시금치 20g, 육수 150ml',
+        steps: ['시금치를 데쳐서 잘게 썰어요', '육수를 끓여요', '연두부를 작은 큐브로 잘라요', '끓는 육수에 두부와 시금치를 넣어요', '한소끔 끓이면 완성이에요'],
+        tip: '간은 하지 마세요. 아이에게 소금은 돌 이후부터예요.',
+      },
+      {
+        id: 'r08', name: '달걀 야채볶음밥', emoji: '🍳',
+        type: '후기이유식', minMonths: 11, maxMonths: 12,
+        ingredients: ['달걀', '당근', '양파', '밥'],
+        ingredientsFull: '밥 50g, 달걀 1개, 당근 15g, 양파 15g, 참기름 약간',
+        steps: ['당근, 양파를 잘게 다져요', '기름 없이 야채를 볶아요', '달걀을 넣고 스크램블 해요', '밥을 넣고 잘 섞어요', '참기름 한 방울로 마무리해요'],
+        tip: '달걀은 완전히 익혀주세요. 반숙은 돌 이전 아이에게 주지 마세요.',
+      },
+      {
+        id: 'r09', name: '소고기 무국', emoji: '🍲',
+        type: '후기이유식', minMonths: 10, maxMonths: 12,
+        ingredients: ['소고기', '무'],
+        ingredientsFull: '소고기 30g, 무 40g, 물 200ml',
+        steps: ['소고기는 잘게 다져요', '무는 작게 깍둑썰어요', '물에 소고기를 먼저 넣고 끓여요', '무를 넣고 무가 투명해질 때까지 끓여요'],
+        tip: '무는 소화를 도와줘요. 겨울철 건강식이에요.',
+      },
+      // ===== 유아식 (13개월~) =====
+      {
+        id: 'r10', name: '치즈 감자전', emoji: '🥞',
+        type: '유아식', minMonths: 13, maxMonths: 84,
+        ingredients: ['감자', '치즈'],
+        ingredientsFull: '감자 100g, 슬라이스 치즈 1장, 달걀 1개, 전분가루 1스푼',
+        steps: ['감자를 강판에 갈거나 잘게 다져요', '달걀, 전분, 치즈를 넣고 섞어요', '팬에 기름을 두르고 동그랗게 올려요', '앞뒤로 노릇하게 구워요'],
+        tip: '아이들이 정말 좋아하는 레시피예요. 간식으로도 딱이에요!',
+      },
+      {
+        id: 'r11', name: '닭고기 채소볶음', emoji: '🫑',
+        type: '유아식', minMonths: 13, maxMonths: 84,
+        ingredients: ['닭가슴살', '파프리카', '양파'],
+        ingredientsFull: '닭가슴살 80g, 파프리카 30g, 양파 30g, 간장 1/2스푼',
+        steps: ['닭가슴살을 작게 잘라요', '파프리카, 양파를 먹기 좋게 썰어요', '팬에 닭고기를 먼저 볶아요', '야채를 넣고 같이 볶아요', '간장을 살짝 넣어 마무리해요'],
+        tip: '색깔 야채를 다양하게 넣어 영양을 보충해요.',
+      },
+      {
+        id: 'r12', name: '토마토 달걀볶음', emoji: '🍅',
+        type: '유아식', minMonths: 13, maxMonths: 84,
+        ingredients: ['토마토', '달걀'],
+        ingredientsFull: '토마토 1개, 달걀 2개, 참기름 약간',
+        steps: ['토마토를 한입 크기로 잘라요', '달걀을 풀어요', '팬에 달걀을 먼저 볶아요', '토마토를 넣고 같이 볶아요', '참기름 한 방울로 마무리해요'],
+        tip: '중국 가정식 요리예요. 토마토의 산미와 달걀이 잘 어울려요.',
+      },
+      {
+        id: 'r13', name: '바나나 오트밀', emoji: '🍌',
+        type: '유아식', minMonths: 10, maxMonths: 84,
+        ingredients: ['바나나', '오트밀'],
+        ingredientsFull: '오트밀 30g, 바나나 1/2개, 우유 또는 분유 100ml',
+        steps: ['오트밀에 우유를 붓고 전자레인지 2분 돌려요', '바나나를 으깨서 섞어요', '식힌 후 먹여요'],
+        tip: '아침 식사로 좋아요. 섬유질이 풍부해요.',
+      },
+      {
+        id: 'r14', name: '단호박 스프', emoji: '🎃',
+        type: '유아식', minMonths: 10, maxMonths: 84,
+        ingredients: ['단호박'],
+        ingredientsFull: '단호박 150g, 우유 또는 분유 100ml, 버터 약간',
+        steps: ['단호박을 쪄서 껍질을 제거해요', '믹서에 단호박과 우유를 넣고 갈아요', '냄비에 붓고 약불로 데워요', '버터를 살짝 넣으면 고소해요'],
+        tip: '달콤하고 부드러워 아이들이 정말 좋아해요!',
+      },
+      {
+        id: 'r15', name: '고구마 매쉬', emoji: '🍠',
+        type: '유아식', minMonths: 6, maxMonths: 84,
+        ingredients: ['고구마'],
+        ingredientsFull: '고구마 100g, 우유 2스푼',
+        steps: ['고구마를 껍질 벗겨 부드럽게 쪄요', '따뜻할 때 포크로 으깨요', '우유를 넣어 부드러운 농도로 만들어요'],
+        tip: '자연 단맛이 있어 설탕 없이도 맛있어요. 변비 예방에도 좋아요.',
+      },
+    ];
+
+    let currentMonths = 0;
+    let currentFilter = 'all';
+    let ingredientList = [];
+    let highlightedIds = [];
+
+    function getTypeByMonths(months) {
+      if (months < 7)  return '초기이유식';
+      if (months < 10) return '중기이유식';
+      if (months < 13) return '후기이유식';
+      return '유아식';
+    }
+
+    function addIngredient() {
+      const input = document.getElementById('ingredient-input');
+      const val = input.value.trim();
+      if (!val) return;
+      if (ingredientList.includes(val)) {
+        window.suksuki.showToast('이미 추가된 재료예요');
+        return;
+      }
+      ingredientList.push(val);
+      input.value = '';
+      renderIngredientTags();
+    }
+
+    function removeIngredient(name) {
+      ingredientList = ingredientList.filter(i => i !== name);
+      renderIngredientTags();
+    }
+
+    function renderIngredientTags() {
+      const container = document.getElementById('ingredient-tags');
+      if (ingredientList.length === 0) {
+        container.innerHTML = '<span class="ingredient-empty">재료를 추가하면 그 재료로 만들 수 있는 레시피를 찾아드려요</span>';
+        return;
+      }
+      container.innerHTML = ingredientList.map(i => `
+        <div class="ingredient-tag">
+          ${i}
+          <span class="ingredient-tag-remove" onclick="removeIngredient('${i}')">×</span>
+        </div>
+      `).join('');
+    }
+
+    function findByIngredients() {
+      if (ingredientList.length === 0) {
+        window.suksuki.showToast('재료를 먼저 입력해주세요 🥕');
+        return;
+      }
+
+      // 입력 재료와 매칭되는 레시피 찾기
+      highlightedIds = RECIPES
+        .filter(r => {
+          const matched = r.ingredients.filter(ing =>
+            ingredientList.some(input =>
+              ing.includes(input) || input.includes(ing)
+            )
+          );
+          return matched.length > 0;
+        })
+        .map(r => r.id);
+
+      if (highlightedIds.length === 0) {
+        window.suksuki.showToast('입력한 재료로 만들 수 있는 레시피가 없어요 😢');
+        return;
+      }
+
+      window.suksuki.showToast(`${highlightedIds.length}개 레시피를 찾았어요! 🎉`, 3000);
+      currentFilter = 'all';
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.filter-btn').classList.add('active');
+      renderRecipes();
+
+      document.getElementById('recipe-list').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function filterRecipe(type, btn) {
+      currentFilter = type;
+      highlightedIds = [];
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRecipes();
+    }
+
+    function toggleSteps(id) {
+      const steps = document.getElementById(`steps-${id}`);
+      const btn   = document.getElementById(`toggle-${id}`);
+      if (steps.classList.contains('open')) {
+        steps.classList.remove('open');
+        btn.textContent = '📋 만드는 방법 보기';
+      } else {
+        steps.classList.add('open');
+        btn.textContent = '📋 접기';
+      }
+    }
+
+    function renderRecipes() {
+      const container = document.getElementById('recipe-list');
+      container.innerHTML = '';
+
+      let filtered = RECIPES.filter(r =>
+        r.minMonths <= currentMonths && r.maxMonths >= currentMonths
+      );
+
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(r => r.type === currentFilter);
+      }
+
+      // 하이라이트 된 것 먼저
+      filtered.sort((a, b) => {
+        const aH = highlightedIds.includes(a.id) ? -1 : 1;
+        const bH = highlightedIds.includes(b.id) ? -1 : 1;
+        return aH - bH;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="no-recipe-msg">
+          이 시기에 맞는 레시피가 없어요 😢<br/>
+          다른 필터를 선택해보세요
+        </div>`;
+        return;
+      }
+
+      filtered.forEach(r => {
+        const isHighlighted = highlightedIds.includes(r.id);
+        const matchedIngredients = ingredientList.length > 0
+          ? r.ingredients.filter(ing =>
+              ingredientList.some(input => ing.includes(input) || input.includes(ing))
+            )
+          : [];
+
+        const card = document.createElement('div');
+        card.className = `recipe-card ${isHighlighted ? 'highlighted' : ''}`;
+        card.innerHTML = `
+          <div class="recipe-card-header">
+            <div class="recipe-card-left">
+              <p class="recipe-name">${r.name}</p>
+              <div class="recipe-tags">
+                <span class="recipe-tag tag-months">${r.minMonths}~${r.maxMonths}개월</span>
+                <span class="recipe-tag tag-type">${r.type}</span>
+                ${isHighlighted ? `<span class="recipe-tag tag-match">✓ 재료 매칭</span>` : ''}
+              </div>
+            </div>
+            <span class="recipe-emoji">${r.emoji}</span>
+          </div>
+          <p class="recipe-ingredients">
+            <strong>재료:</strong> ${r.ingredientsFull}
+          </p>
+          ${r.tip ? `<p style="font-size:12px;color:var(--primary);background:var(--primary-light);padding:8px 10px;border-radius:8px;margin-bottom:10px;">💡 ${r.tip}</p>` : ''}
+          <button class="recipe-toggle" id="toggle-${r.id}" onclick="toggleSteps('${r.id}')">
+            📋 만드는 방법 보기
+          </button>
+          <div class="recipe-steps" id="steps-${r.id}">
+            ${r.steps.map((s, i) => `
+              <div class="recipe-step">
+                <span class="step-num">${i+1}</span>
+                <span>${s}</span>
+              </div>
+            `).join('')}
+          </div>
+          <button class="recipe-share-btn" onclick="shareRecipe('${r.name}')">
+            🔗 이 레시피 공유하기
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function shareRecipe(name) {
+      const url = 'https://suksuki.com/recipe.html';
+      if (navigator.share) {
+        navigator.share({
+          title: `쑥쑥이 레시피 - ${name}`,
+          text: `우리 아이를 위한 ${name} 레시피! 쑥쑥이에서 확인해보세요 🍳`,
+          url,
+        }).catch(() => window.suksuki.copyLink());
+      } else {
+        window.suksuki.copyLink();
+        window.suksuki.showToast('링크 복사됐어요! 🔗');
+      }
+    }
+
+    function initRecipe() {
+      const type  = localStorage.getItem(window.suksuki.K.TYPE);
+      const birth = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
+      const name  = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+
+      if (type !== 'baby' || !birth) {
+        document.getElementById('view-no-data').classList.remove('hidden');
+        return;
+      }
+
+      currentMonths = window.suksuki.calcMonths(birth);
+      const recipeType = getTypeByMonths(currentMonths);
+
+      document.getElementById('view-recipe').classList.remove('hidden');
+      document.getElementById('baby-name-display').textContent = name;
+      document.getElementById('recipe-hero-desc').textContent =
+        `현재 ${currentMonths}개월 · ${recipeType} 단계 레시피를 추천해드려요`;
+
+      renderRecipes();
+    }
+
+    window.addEventListener('load', function() {
+      if (window.suksuki) initRecipe();
+      else setTimeout(initRecipe, 100);
+    });
+  </script>
+</body>
+</html>
