@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>성장 발달 체크 - 쑥쑥이</title>
+  <meta name="description" content="아이 개월수별 평균 키·몸무게·머리둘레와 비교하고, 발달 체크리스트를 확인하세요." />
+  <meta name="theme-color" content="#1A3C34" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    .growth-hero {
+      background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+      padding: 24px 20px 28px;
+      color: #fff;
+    }
+
+    .growth-hero-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .growth-hero-months {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 16px;
+    }
+
+    /* 수치 입력 카드 */
+    .measure-card {
+      background: var(--card);
+      margin: 16px 16px 0;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .measure-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .measure-item {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .measure-label {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .measure-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 6px;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text);
+      background: var(--card);
+      outline: none;
+      margin-bottom: 4px;
+    }
+
+    .measure-input:focus { border-color: var(--primary); }
+
+    .measure-unit {
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    .measure-avg {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .btn-measure {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      min-height: 50px;
+    }
+
+    /* 비교 결과 */
+    .result-card {
+      background: var(--card);
+      margin: 12px 16px 0;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .result-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .result-row:last-child { margin-bottom: 0; }
+
+    .result-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-mid);
+      width: 56px;
+      flex-shrink: 0;
+    }
+
+    .result-bar-wrap {
+      flex: 1;
+      background: var(--bg);
+      border-radius: 100px;
+      height: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .result-bar-avg {
+      position: absolute;
+      top: 0; bottom: 0;
+      background: var(--border);
+      border-radius: 100px;
+    }
+
+    .result-bar-child {
+      position: absolute;
+      top: 0; bottom: 0;
+      background: var(--primary);
+      border-radius: 100px;
+      transition: width 0.5s ease;
+    }
+
+    .result-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      width: 60px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .result-percentile {
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      text-align: center;
+      background: var(--primary-light);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      margin-top: 10px;
+    }
+
+    /* 평균 수치 카드 */
+    .avg-card {
+      background: var(--card);
+      margin: 16px 16px 0;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .avg-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .avg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .avg-item {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .avg-item-icon { font-size: 20px; margin-bottom: 6px; }
+
+    .avg-item-value {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 2px;
+    }
+
+    .avg-item-label {
+      font-size: 10px;
+      color: var(--text-light);
+    }
+
+    /* 발달 체크리스트 */
+    .checklist-card {
+      background: var(--card);
+      margin: 16px 16px 0;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .checklist-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .checklist-subtitle {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .checklist-section {
+      margin-bottom: 16px;
+    }
+
+    .checklist-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 5px 10px;
+      border-radius: 100px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .checklist-item:last-child { border-bottom: none; }
+
+    .check-box {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: all 0.2s;
+      margin-top: 1px;
+    }
+
+    .checklist-item.checked .check-box {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .check-text {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .checklist-item.checked .check-text {
+      text-decoration: line-through;
+      color: var(--text-light);
+    }
+
+    .checklist-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .checklist-progress-bar {
+      flex: 1;
+      background: var(--bg);
+      border-radius: 100px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .checklist-progress-fill {
+      background: var(--primary);
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.4s;
+    }
+
+    .checklist-progress-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    /* 공유 */
+    .share-growth-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: calc(100% - 32px);
+      margin: 16px 16px 0;
+      padding: 14px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-mid);
+      min-height: 50px;
+    }
+
+    /* 설정 없을 때 */
+    .setup-prompt {
+      margin: 20px 16px 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .setup-prompt-icon { font-size: 48px; margin-bottom: 14px; }
+    .setup-prompt-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .setup-prompt-desc { font-size: 14px; color: var(--text-light); line-height: 1.7; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">🌱 <span>쑥쑥이</span></a>
+      <span class="header-sub">성장 발달 체크</span>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- 설정 없을 때 -->
+    <div id="view-no-data" class="hidden">
+      <div class="setup-prompt">
+        <div class="setup-prompt-icon">📏</div>
+        <h2 class="setup-prompt-title">아이 정보를 먼저 등록해주세요</h2>
+        <p class="setup-prompt-desc">아이 생년월일을 입력하면 개월수에 맞는 성장 발달 정보를 확인할 수 있어요</p>
+        <a href="index.html" class="btn-primary" style="display:block;text-decoration:none;text-align:center;">홈에서 등록하기 →</a>
+      </div>
+    </div>
+
+    <!-- 성장 발달 메인 뷰 -->
+    <div id="view-growth" class="hidden">
+
+      <!-- 히어로 -->
+      <div class="growth-hero">
+        <h1 class="growth-hero-title">📏 <span id="baby-name-display">우리아이</span> 성장 발달</h1>
+        <p class="growth-hero-months" id="months-display">현재 -개월</p>
+      </div>
+
+      <!-- 평균 수치 -->
+      <div class="avg-card">
+        <p class="avg-card-title">📊 <span id="avg-months-label">-개월</span> 평균 수치</p>
+        <div class="avg-grid">
+          <div class="avg-item">
+            <div class="avg-item-icon">📏</div>
+            <div class="avg-item-value" id="avg-height">-</div>
+            <div class="avg-item-label">평균 키 (cm)</div>
+          </div>
+          <div class="avg-item">
+            <div class="avg-item-icon">⚖️</div>
+            <div class="avg-item-value" id="avg-weight">-</div>
+            <div class="avg-item-label">평균 몸무게 (kg)</div>
+          </div>
+          <div class="avg-item">
+            <div class="avg-item-icon">🔵</div>
+            <div class="avg-item-value" id="avg-head">-</div>
+            <div class="avg-item-label">평균 머리둘레 (cm)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 수치 입력 -->
+      <div class="measure-card">
+        <p class="measure-card-title">✏️ 우리 아이 수치 입력</p>
+        <div class="measure-grid">
+          <div class="measure-item">
+            <p class="measure-label">키</p>
+            <input class="measure-input" type="number" id="input-height" placeholder="-" step="0.1" />
+            <p class="measure-unit">cm</p>
+            <p class="measure-avg" id="hint-height"></p>
+          </div>
+          <div class="measure-item">
+            <p class="measure-label">몸무게</p>
+            <input class="measure-input" type="number" id="input-weight" placeholder="-" step="0.1" />
+            <p class="measure-unit">kg</p>
+            <p class="measure-avg" id="hint-weight"></p>
+          </div>
+          <div class="measure-item">
+            <p class="measure-label">머리둘레</p>
+            <input class="measure-input" type="number" id="input-head" placeholder="-" step="0.1" />
+            <p class="measure-unit">cm</p>
+            <p class="measure-avg" id="hint-head"></p>
+          </div>
+        </div>
+        <button class="btn-measure" onclick="compareMeasure()">평균과 비교하기 →</button>
+      </div>
+
+      <!-- 비교 결과 (입력 후 표시) -->
+      <div class="result-card hidden" id="result-card">
+        <p class="result-card-title">📈 평균 비교 결과</p>
+        <div class="result-row">
+          <span class="result-label">키</span>
+          <div class="result-bar-wrap">
+            <div class="result-bar-avg" id="bar-avg-h" style="width:60%"></div>
+            <div class="result-bar-child" id="bar-child-h" style="width:0%"></div>
+          </div>
+          <span class="result-value" id="result-height">-</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">몸무게</span>
+          <div class="result-bar-wrap">
+            <div class="result-bar-avg" id="bar-avg-w" style="width:60%"></div>
+            <div class="result-bar-child" id="bar-child-w" style="width:0%"></div>
+          </div>
+          <span class="result-value" id="result-weight">-</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">머리둘레</span>
+          <div class="result-bar-wrap">
+            <div class="result-bar-avg" id="bar-avg-hd" style="width:60%"></div>
+            <div class="result-bar-child" id="bar-child-hd" style="width:0%"></div>
+          </div>
+          <span class="result-value" id="result-head">-</span>
+        </div>
+        <div class="result-percentile" id="result-comment"></div>
+      </div>
+
+      <!-- 발달 체크리스트 -->
+      <div class="checklist-card">
+        <p class="checklist-title">✅ 발달 체크리스트</p>
+        <p class="checklist-subtitle" id="checklist-subtitle">이 시기 아이들이 보통 할 수 있는 것들이에요. 아이마다 발달 속도는 달라요 😊</p>
+
+        <div class="checklist-progress">
+          <div class="checklist-progress-bar">
+            <div class="checklist-progress-fill" id="checklist-fill" style="width:0%"></div>
+          </div>
+          <span class="checklist-progress-text" id="checklist-progress-text">0/0</span>
+        </div>
+
+        <div id="checklist-container"></div>
+      </div>
+
+      <!-- 공유 버튼 -->
+      <button class="share-growth-btn" onclick="shareGrowthInfo()">
+        🔗 성장 정보 공유하기
+      </button>
+
+    </div>
+
+  </main>
+
+  <!-- 면책 고지 -->
+  <div class="disclaimer">
+    <p>⚠️ 성장 수치 및 발달 체크리스트는 <strong>일반적인 참고 자료</strong>입니다. 아이마다 발달 속도는 다를 수 있으며, ±2~3개월 차이는 정상 범위입니다. 걱정되는 사항은 반드시 <strong>소아과 전문의와 상담</strong>하세요. 평균 수치는 대한소아과학회 기준을 참고하였습니다.</p>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <p class="footer-logo">🌱 쑥쑥이</p>
+    <p class="footer-desc">임신부터 취학 전까지, 우리 아이 성장 파트너</p>
+    <div class="footer-links">
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="#">문의하기</a>
+    </div>
+    <p class="footer-copy">© 2026 suksuki.com</p>
+  </footer>
+
+  <!-- 하단 탭바 -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bnav">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">홈</span>
+    </a>
+    <a href="growth.html" class="bnav active">
+      <span class="bnav-icon">📏</span>
+      <span class="bnav-label">성장</span>
+    </a>
+    <a href="vaccine.html" class="bnav">
+      <span class="bnav-icon">💉</span>
+      <span class="bnav-label">접종</span>
+    </a>
+    <a href="recipe.html" class="bnav">
+      <span class="bnav-icon">🍳</span>
+      <span class="bnav-label">레시피</span>
+    </a>
+    <a href="subsidy.html" class="bnav">
+      <span class="bnav-icon">💰</span>
+      <span class="bnav-label">지원금</span>
+    </a>
+  </nav>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="script.js"></script>
+  <script>
+    // 개월수별 평균 성장 수치 (대한소아과학회 기준, 남녀 평균)
+    const GROWTH_DATA = {
+      0:  { height: 50.0, weight: 3.3, head: 34.5 },
+      1:  { height: 54.0, weight: 4.5, head: 37.0 },
+      2:  { height: 57.5, weight: 5.6, head: 39.0 },
+      3:  { height: 61.0, weight: 6.4, head: 40.5 },
+      4:  { height: 63.5, weight: 7.0, head: 41.5 },
+      5:  { height: 65.5, weight: 7.5, head: 42.5 },
+      6:  { height: 67.5, weight: 8.0, head: 43.5 },
+      7:  { height: 69.0, weight: 8.5, head: 44.0 },
+      8:  { height: 71.0, weight: 9.0, head: 44.5 },
+      9:  { height: 72.0, weight: 9.2, head: 45.0 },
+      10: { height: 73.5, weight: 9.5, head: 45.5 },
+      11: { height: 75.0, weight: 9.8, head: 46.0 },
+      12: { height: 76.0, weight: 10.0, head: 46.5 },
+      15: { height: 79.0, weight: 10.5, head: 47.0 },
+      18: { height: 82.0, weight: 11.0, head: 47.5 },
+      24: { height: 87.5, weight: 12.0, head: 48.5 },
+      30: { height: 92.0, weight: 13.0, head: 49.0 },
+      36: { height: 96.0, weight: 14.0, head: 49.5 },
+      42: { height: 100.0, weight: 15.0, head: 50.0 },
+      48: { height: 103.0, weight: 16.0, head: 50.5 },
+      54: { height: 107.0, weight: 17.0, head: 51.0 },
+      60: { height: 110.0, weight: 18.0, head: 51.5 },
+      72: { height: 116.0, weight: 20.5, head: 52.0 },
+    };
+
+    // 발달 체크리스트
+    const CHECKLIST_DATA = {
+      2: {
+        subtitle: '2개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['소리나는 방향으로 고개를 돌려요', '엎드려 놓으면 잠깐 고개를 들어요', '손을 꽉 쥐어요'] },
+          { title: '사회·정서', items: ['사람 얼굴을 보면 미소를 지어요', '기분 좋으면 소리를 내요'] },
+        ]
+      },
+      4: {
+        subtitle: '4개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['엎드리면 가슴까지 들어요', '손에 닿는 물건을 잡으려 해요', '양쪽으로 뒤집기 시도해요'] },
+          { title: '언어·인지', items: ['웃으면서 소리를 내요', '목소리 나는 쪽으로 고개를 돌려요'] },
+        ]
+      },
+      6: {
+        subtitle: '6개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['혼자 앉기 시작해요 (잠깐)', '뒤집기를 잘 해요', '물건을 두 손으로 잡을 수 있어요'] },
+          { title: '언어·인지', items: ['다양한 소리를 내요 (바, 마, 다)', '낯선 사람을 보면 낯을 가려요'] },
+          { title: '이유식', items: ['이유식을 시작할 수 있어요 (숟가락으로)', '고개를 가눌 수 있어요'] },
+        ]
+      },
+      9: {
+        subtitle: '9개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['혼자 앉아 있을 수 있어요', '기기 시작해요', '잡고 서려고 해요'] },
+          { title: '언어·인지', items: ['"엄마", "아빠" 비슷한 소리를 내요', '이름을 부르면 반응해요', '"안돼"를 이해해요'] },
+          { title: '사회·정서', items: ['까꿍 놀이를 좋아해요', '손뼉을 칠 수 있어요'] },
+        ]
+      },
+      12: {
+        subtitle: '12개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['잡고 걷거나 혼자 걷기 시작해요', '컵으로 물을 마실 수 있어요', '엄지·검지로 작은 것을 집어요'] },
+          { title: '언어·인지', items: ['의미있는 단어를 1~3개 말해요', '간단한 지시를 따를 수 있어요', '원하는 것을 손가락으로 가리켜요'] },
+          { title: '사회·정서', items: ['낯가림이 있어요', '책 넘기기를 좋아해요'] },
+        ]
+      },
+      18: {
+        subtitle: '18개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['혼자 잘 걸어요', '계단을 기어 올라가요', '숟가락을 사용해요'] },
+          { title: '언어·인지', items: ['단어를 10개 이상 말해요', '신체 부위를 2~3개 가리켜요', '간단한 심부름을 해요'] },
+          { title: '사회·정서', items: ['혼자 놀다가 부모 확인해요', '모방놀이를 해요 (전화하는 척 등)'] },
+        ]
+      },
+      24: {
+        subtitle: '24개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['계단을 두 발로 오를 수 있어요', '공을 찰 수 있어요', '혼자 옷을 벗을 수 있어요'] },
+          { title: '언어·인지', items: ['두 단어를 연결해서 말해요 (엄마 물)', '단어를 50개 이상 말해요', '그림책에서 사물을 가리켜요'] },
+          { title: '사회·정서', items: ['또래에 관심을 가져요', '떼를 쓰기 시작해요 (정상이에요!)'] },
+        ]
+      },
+      36: {
+        subtitle: '36개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['세발자전거를 탈 수 있어요', '가위질을 시도해요', '혼자 옷을 입고 벗어요'] },
+          { title: '언어·인지', items: ['3~4단어 문장을 말해요', '자기 이름과 나이를 알아요', '색깔을 2~3가지 알아요'] },
+          { title: '사회·정서', items: ['친구와 함께 놀아요', '역할 놀이를 해요 (엄마·아빠 놀이 등)'] },
+        ]
+      },
+      48: {
+        subtitle: '48개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['한 발로 잠깐 서 있을 수 있어요', '계단을 혼자 오르내려요', '공을 던지고 받을 수 있어요'] },
+          { title: '언어·인지', items: ['간단한 노래를 불러요', '숫자를 1~10까지 세어요', '이야기를 만들어요'] },
+          { title: '사회·정서', items: ['규칙이 있는 놀이를 이해해요', '친구와 잘 어울려 놀아요'] },
+        ]
+      },
+      60: {
+        subtitle: '60개월 아이는 이런 것들을 해요',
+        sections: [
+          { title: '신체 발달', items: ['스킵(깡충깡충)을 할 수 있어요', '가위로 선을 따라 잘라요', '연필을 잡고 그림을 그려요'] },
+          { title: '언어·인지', items: ['자신의 이름을 쓸 수 있어요', '간단한 덧셈·뺄셈을 해요', '길고 복잡한 문장을 말해요'] },
+          { title: '사회·정서', items: ['규칙을 이해하고 지켜요', '친구 관계를 중요하게 여겨요'] },
+        ]
+      },
+    };
+
+    const CHECKLIST_KEY = 'sk_checklist_done';
+    let checklistDone = {};
+    let currentMonths = 0;
+
+    function getGrowthData(months) {
+      const keys = Object.keys(GROWTH_DATA).map(Number).sort((a,b) => a-b);
+      let matched = keys[0];
+      for (const k of keys) { if (months >= k) matched = k; }
+      return GROWTH_DATA[matched];
+    }
+
+    function getChecklistData(months) {
+      const keys = Object.keys(CHECKLIST_DATA).map(Number).sort((a,b) => a-b);
+      let matched = keys[0];
+      for (const k of keys) { if (months >= k) matched = k; }
+      return CHECKLIST_DATA[matched];
+    }
+
+    function loadChecklist() {
+      try {
+        const saved = localStorage.getItem(CHECKLIST_KEY);
+        return saved ? JSON.parse(saved) : {};
+      } catch { return {}; }
+    }
+
+    function saveChecklist() {
+      localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklistDone));
+    }
+
+    function toggleChecklist(key) {
+      checklistDone[key] = !checklistDone[key];
+      if (!checklistDone[key]) delete checklistDone[key];
+      saveChecklist();
+      renderChecklist();
+    }
+
+    function renderChecklist() {
+      const data = getChecklistData(currentMonths);
+      const container = document.getElementById('checklist-container');
+      container.innerHTML = '';
+
+      let totalItems = 0, doneItems = 0;
+
+      data.sections.forEach(section => {
+        const sectionEl = document.createElement('div');
+        sectionEl.className = 'checklist-section';
+        sectionEl.innerHTML = `<span class="checklist-section-title">${section.title}</span>`;
+
+        section.items.forEach((item, idx) => {
+          const key = `${currentMonths}_${section.title}_${idx}`;
+          const isDone = !!checklistDone[key];
+          totalItems++;
+          if (isDone) doneItems++;
+
+          const itemEl = document.createElement('div');
+          itemEl.className = `checklist-item ${isDone ? 'checked' : ''}`;
+          itemEl.innerHTML = `
+            <div class="check-box">${isDone ? '✓' : ''}</div>
+            <span class="check-text">${item}</span>
+          `;
+          itemEl.onclick = () => toggleChecklist(key);
+          sectionEl.appendChild(itemEl);
+        });
+
+        container.appendChild(sectionEl);
+      });
+
+      // 진행률 업데이트
+      const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+      document.getElementById('checklist-fill').style.width = pct + '%';
+      document.getElementById('checklist-progress-text').textContent = `${doneItems}/${totalItems}`;
+    }
+
+    function compareMeasure() {
+      const h  = parseFloat(document.getElementById('input-height').value);
+      const w  = parseFloat(document.getElementById('input-weight').value);
+      const hd = parseFloat(document.getElementById('input-head').value);
+
+      if (!h && !w && !hd) {
+        window.suksuki.showToast('수치를 하나 이상 입력해주세요 📏');
+        return;
+      }
+
+      const avg = getGrowthData(currentMonths);
+      const resultCard = document.getElementById('result-card');
+      resultCard.classList.remove('hidden');
+
+      function getBarWidth(val, avgVal) {
+        if (!val) return 0;
+        const ratio = val / avgVal;
+        return Math.min(95, Math.max(5, ratio * 60));
+      }
+
+      function getDiff(val, avgVal) {
+        if (!val) return null;
+        const diff = val - avgVal;
+        return diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
+      }
+
+      if (h) {
+        document.getElementById('bar-child-h').style.width = getBarWidth(h, avg.height) + '%';
+        document.getElementById('result-height').textContent = `${h}cm (${getDiff(h, avg.height)})`;
+      }
+      if (w) {
+        document.getElementById('bar-child-w').style.width = getBarWidth(w, avg.weight) + '%';
+        document.getElementById('result-weight').textContent = `${w}kg (${getDiff(w, avg.weight)})`;
+      }
+      if (hd) {
+        document.getElementById('bar-child-hd').style.width = getBarWidth(hd, avg.head) + '%';
+        document.getElementById('result-head').textContent = `${hd}cm (${getDiff(hd, avg.head)})`;
+      }
+
+      // 코멘트
+      const comments = [];
+      if (h) {
+        const diff = h - avg.height;
+        if (diff > 2) comments.push('키가 평균보다 크네요! 🌱');
+        else if (diff < -2) comments.push('키가 평균보다 조금 작아요.');
+        else comments.push('키가 평균 범위예요 👍');
+      }
+      document.getElementById('result-comment').textContent =
+        comments.join(' ') + ' (±2cm는 정상 범위예요)';
+
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function shareGrowthInfo() {
+      window.suksuki.shareCurrentPage(
+        '쑥쑥이 - 성장 발달 체크',
+        '개월수별 평균 키·몸무게와 비교하고, 발달 체크리스트를 확인해보세요!'
+      );
+    }
+
+    function initGrowth() {
+      const type  = localStorage.getItem(window.suksuki.K.TYPE);
+      const birth = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
+      const name  = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+
+      if (type !== 'baby' || !birth) {
+        document.getElementById('view-no-data').classList.remove('hidden');
+        return;
+      }
+
+      currentMonths = window.suksuki.calcMonths(birth);
+      checklistDone = loadChecklist();
+
+      document.getElementById('view-growth').classList.remove('hidden');
+      document.getElementById('baby-name-display').textContent = name;
+      document.getElementById('months-display').textContent = `현재 ${currentMonths}개월`;
+
+      // 평균 수치 표시
+      const avg = getGrowthData(currentMonths);
+      document.getElementById('avg-months-label').textContent = `${currentMonths}개월`;
+      document.getElementById('avg-height').textContent = avg.height;
+      document.getElementById('avg-weight').textContent = avg.weight;
+      document.getElementById('avg-head').textContent = avg.head;
+
+      // 입력 힌트
+      document.getElementById('hint-height').textContent = `평균 ${avg.height}cm`;
+      document.getElementById('hint-weight').textContent = `평균 ${avg.weight}kg`;
+      document.getElementById('hint-head').textContent   = `평균 ${avg.head}cm`;
+
+      // 체크리스트
+      const clData = getChecklistData(currentMonths);
+      document.getElementById('checklist-subtitle').textContent = clData.subtitle;
+      renderChecklist();
+    }
+
+    window.addEventListener('load', function() {
+      if (window.suksuki) initGrowth();
+      else setTimeout(initGrowth, 100);
+    });
+  </script>
+</body>
+</html>
