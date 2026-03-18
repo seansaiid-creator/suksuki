@@ -167,6 +167,7 @@
 
     .dad-input {
       flex: 1;
+      min-width: 0; /* 중요: flex 아이템이 넘치지 않게 */
       padding: 13px 14px;
       border: 1.5px solid var(--border);
       border-radius: var(--radius-sm);
@@ -181,12 +182,13 @@
     .btn-dad {
       background: var(--accent);
       color: #fff;
-      padding: 13px 18px;
+      padding: 13px 14px;
       border-radius: var(--radius-sm);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       min-height: 50px;
       white-space: nowrap;
+      flex-shrink: 0; /* 버튼이 줄어들지 않게 */
     }
 
     .dad-hint {

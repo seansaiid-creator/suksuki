@@ -545,9 +545,22 @@
     }
 
     function initVaccine() {
-      const type  = localStorage.getItem(window.suksuki.K.TYPE);
-      const birth = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
-      const name  = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+      const type    = localStorage.getItem(window.suksuki.K.TYPE);
+      const birth   = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
+      const dueDate = localStorage.getItem(window.suksuki.K.DUE_DATE);
+      const name    = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+
+      // 임신 중인 경우: 0개월 기준으로 미리보기
+      if (type === 'pregnant' && dueDate) {
+        currentMonths = 0;
+        doneVaccines  = loadDoneVaccines();
+        document.getElementById('view-vaccine').classList.remove('hidden');
+        document.getElementById('baby-name-display').textContent = '출생 후 예정';
+        updateProgress();
+        updateNextBanner();
+        renderVaccines();
+        return;
+      }
 
       if (type !== 'baby' || !birth) {
         document.getElementById('view-no-data').classList.remove('hidden');

@@ -786,9 +786,31 @@
     }
 
     function initGrowth() {
-      const type  = localStorage.getItem(window.suksuki.K.TYPE);
-      const birth = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
-      const name  = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+      const type    = localStorage.getItem(window.suksuki.K.TYPE);
+      const birth   = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
+      const dueDate = localStorage.getItem(window.suksuki.K.DUE_DATE);
+      const name    = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+
+      // 임신 중인 경우: 출생 예정일 기준 0개월로 미리보기
+      if (type === 'pregnant' && dueDate) {
+        currentMonths = 0;
+        checklistDone = loadChecklist();
+        document.getElementById('view-growth').classList.remove('hidden');
+        document.getElementById('baby-name-display').textContent = '출생 후 예정';
+        document.getElementById('months-display').textContent = '출생 후 성장 정보 미리보기';
+        const avg = getGrowthData(0);
+        document.getElementById('avg-months-label').textContent = '출생 시';
+        document.getElementById('avg-height').textContent = avg.height;
+        document.getElementById('avg-weight').textContent = avg.weight;
+        document.getElementById('avg-head').textContent = avg.head;
+        document.getElementById('hint-height').textContent = `평균 ${avg.height}cm`;
+        document.getElementById('hint-weight').textContent = `평균 ${avg.weight}kg`;
+        document.getElementById('hint-head').textContent   = `평균 ${avg.head}cm`;
+        const clData = getChecklistData(0);
+        document.getElementById('checklist-subtitle').textContent = '출생 후 초기 발달 체크리스트를 미리 확인해보세요 😊';
+        renderChecklist();
+        return;
+      }
 
       if (type !== 'baby' || !birth) {
         document.getElementById('view-no-data').classList.remove('hidden');

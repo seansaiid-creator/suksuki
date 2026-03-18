@@ -683,9 +683,20 @@
     }
 
     function initRecipe() {
-      const type  = localStorage.getItem(window.suksuki.K.TYPE);
-      const birth = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
-      const name  = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+      const type    = localStorage.getItem(window.suksuki.K.TYPE);
+      const birth   = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
+      const dueDate = localStorage.getItem(window.suksuki.K.DUE_DATE);
+      const name    = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+
+      // 임신 중인 경우: 초기 이유식 미리보기
+      if (type === 'pregnant' && dueDate) {
+        currentMonths = 4; // 초기이유식 시작 시점으로 미리보기
+        document.getElementById('view-recipe').classList.remove('hidden');
+        document.getElementById('baby-name-display').textContent = '출생 후 예정';
+        document.getElementById('recipe-hero-desc').textContent = '출생 후 시작할 초기 이유식 레시피를 미리 확인해보세요 🍼';
+        renderRecipes();
+        return;
+      }
 
       if (type !== 'baby' || !birth) {
         document.getElementById('view-no-data').classList.remove('hidden');
