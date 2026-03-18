@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>예방접종 관리 - 쑥쑥이</title>
+  <meta name="description" content="국가예방접종 전체 스케줄을 한눈에. 맞은 것 체크하면 다음 접종을 자동으로 알려드려요." />
+  <meta name="theme-color" content="#1A3C34" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    .vaccine-hero {
+      background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+      padding: 24px 20px 28px;
+      color: #fff;
+    }
+
+    .vaccine-hero-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .vaccine-hero-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .vaccine-progress-wrap {
+      background: rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .vaccine-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .vaccine-progress-bar {
+      background: rgba(255,255,255,0.2);
+      border-radius: 100px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .vaccine-progress-fill {
+      background: var(--secondary);
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.5s ease;
+    }
+
+    /* 필터 탭 */
+    .filter-wrap {
+      padding: 16px 16px 0;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .filter-wrap::-webkit-scrollbar { display: none; }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-mid);
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      white-space: nowrap;
+      min-height: 38px;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* 접종 그룹 */
+    .vaccine-group {
+      margin: 16px 16px 0;
+    }
+
+    .vaccine-group-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vaccine-group-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* 접종 아이템 */
+    .vaccine-item {
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 8px;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s;
+    }
+
+    .vaccine-item.done {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      opacity: 0.8;
+    }
+
+    .vaccine-item.upcoming {
+      border-color: var(--secondary);
+      background: #FFF8F0;
+    }
+
+    .vaccine-checkbox {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .vaccine-item.done .vaccine-checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .vaccine-item.upcoming .vaccine-checkbox {
+      border-color: var(--secondary);
+    }
+
+    .vaccine-info { flex: 1; }
+
+    .vaccine-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .vaccine-item.done .vaccine-name {
+      text-decoration: line-through;
+      color: var(--text-light);
+    }
+
+    .vaccine-detail {
+      font-size: 12px;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    .vaccine-time {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .vaccine-time.done-tag {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .vaccine-time.upcoming-tag {
+      background: #FFF0E0;
+      color: var(--accent);
+    }
+
+    .vaccine-time.future-tag {
+      background: var(--bg);
+      color: var(--text-light);
+    }
+
+    /* 다음 접종 배너 */
+    .next-vaccine-banner {
+      background: #FFF8F0;
+      border: 1.5px solid #FFD199;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 16px 16px 0;
+    }
+
+    .next-vaccine-banner-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .next-vaccine-list {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.8;
+    }
+
+    /* 공유 버튼 */
+    .share-vaccine-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: calc(100% - 32px);
+      margin: 16px 16px 0;
+      padding: 14px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-mid);
+      min-height: 50px;
+    }
+
+    /* 설정 없을 때 */
+    .setup-prompt {
+      margin: 20px 16px 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .setup-prompt-icon { font-size: 48px; margin-bottom: 14px; }
+    .setup-prompt-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .setup-prompt-desc { font-size: 14px; color: var(--text-light); line-height: 1.7; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">🌱 <span>쑥쑥이</span></a>
+      <span class="header-sub">예방접종 관리</span>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- 설정 없을 때 -->
+    <div id="view-no-data" class="hidden">
+      <div class="setup-prompt">
+        <div class="setup-prompt-icon">💉</div>
+        <h2 class="setup-prompt-title">아이 정보를 먼저 등록해주세요</h2>
+        <p class="setup-prompt-desc">아이 생년월일을 입력하면 개월수에 맞는 예방접종 스케줄을 확인할 수 있어요</p>
+        <a href="index.html" class="btn-primary" style="display:block;text-decoration:none;text-align:center;">홈에서 등록하기 →</a>
+      </div>
+    </div>
+
+    <!-- 예방접종 메인 뷰 -->
+    <div id="view-vaccine" class="hidden">
+
+      <!-- 히어로 -->
+      <div class="vaccine-hero">
+        <h1 class="vaccine-hero-title">💉 <span id="baby-name-display">우리아이</span> 예방접종</h1>
+        <p class="vaccine-hero-desc">국가예방접종 스케줄 · 맞은 것 체크 · 다음 접종 확인</p>
+        <div class="vaccine-progress-wrap">
+          <div class="vaccine-progress-label">
+            <span>접종 완료</span>
+            <span id="progress-text">0 / 0</span>
+          </div>
+          <div class="vaccine-progress-bar">
+            <div class="vaccine-progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 다음 접종 배너 -->
+      <div class="next-vaccine-banner" id="next-banner">
+        <p class="next-vaccine-banner-title">⚡ 곧 맞아야 할 접종</p>
+        <div class="next-vaccine-list" id="next-list">-</div>
+      </div>
+
+      <!-- 필터 -->
+      <div class="filter-wrap">
+        <button class="filter-btn active" onclick="filterVaccine('all', this)">전체</button>
+        <button class="filter-btn" onclick="filterVaccine('upcoming', this)">곧 맞을 것</button>
+        <button class="filter-btn" onclick="filterVaccine('done', this)">완료</button>
+        <button class="filter-btn" onclick="filterVaccine('future', this)">앞으로</button>
+      </div>
+
+      <!-- 접종 목록 -->
+      <div id="vaccine-list"></div>
+
+      <!-- 공유 버튼 -->
+      <button class="share-vaccine-btn" onclick="shareVaccineInfo()">
+        🔗 예방접종 정보 공유하기
+      </button>
+
+    </div>
+
+  </main>
+
+  <!-- 면책 고지 -->
+  <div class="disclaimer">
+    <p>⚠️ 예방접종 정보는 <strong>질병관리청 국가예방접종 기준</strong>을 참고한 일반적인 안내입니다. 실제 접종 일정은 아이 건강 상태에 따라 달라질 수 있으며, 반드시 <strong>소아과 전문의와 상담</strong> 후 접종하세요.</p>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <p class="footer-logo">🌱 쑥쑥이</p>
+    <p class="footer-desc">임신부터 취학 전까지, 우리 아이 성장 파트너</p>
+    <div class="footer-links">
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="#">문의하기</a>
+    </div>
+    <p class="footer-copy">© 2026 suksuki.com</p>
+  </footer>
+
+  <!-- 하단 탭바 -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bnav">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">홈</span>
+    </a>
+    <a href="growth.html" class="bnav">
+      <span class="bnav-icon">📏</span>
+      <span class="bnav-label">성장</span>
+    </a>
+    <a href="vaccine.html" class="bnav active">
+      <span class="bnav-icon">💉</span>
+      <span class="bnav-label">접종</span>
+    </a>
+    <a href="recipe.html" class="bnav">
+      <span class="bnav-icon">🍳</span>
+      <span class="bnav-label">레시피</span>
+    </a>
+    <a href="subsidy.html" class="bnav">
+      <span class="bnav-icon">💰</span>
+      <span class="bnav-label">지원금</span>
+    </a>
+  </nav>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="script.js"></script>
+  <script>
+    // 국가예방접종 전체 스케줄
+    const VACCINE_SCHEDULE = [
+      // 출생 ~ 1개월
+      { id: 'hepb1',   name: 'B형간염 1차',        months: 0,  detail: '출생 후 12시간 이내 접종',         group: '출생~1개월' },
+      { id: 'bcg',     name: 'BCG (결핵)',           months: 1,  detail: '생후 4주 이내 접종 권장',          group: '출생~1개월' },
+      { id: 'hepb2',   name: 'B형간염 2차',          months: 1,  detail: '1차 접종 후 1개월 뒤',            group: '출생~1개월' },
+      // 2개월
+      { id: 'dtap1',   name: 'DTaP 1차',             months: 2,  detail: '디프테리아·파상풍·백일해',         group: '2개월' },
+      { id: 'ipv1',    name: '폴리오(IPV) 1차',       months: 2,  detail: '소아마비 예방',                   group: '2개월' },
+      { id: 'hib1',    name: 'Hib 1차',              months: 2,  detail: 'b형 헤모필루스 인플루엔자',        group: '2개월' },
+      { id: 'pcv1',    name: '폐렴구균(PCV) 1차',     months: 2,  detail: '13가 단백결합백신',               group: '2개월' },
+      { id: 'rv1',     name: '로타바이러스 1차',       months: 2,  detail: '구강 투여 (먹는 백신)',            group: '2개월' },
+      // 4개월
+      { id: 'dtap2',   name: 'DTaP 2차',             months: 4,  detail: '디프테리아·파상풍·백일해',         group: '4개월' },
+      { id: 'ipv2',    name: '폴리오(IPV) 2차',       months: 4,  detail: '소아마비 예방',                   group: '4개월' },
+      { id: 'hib2',    name: 'Hib 2차',              months: 4,  detail: 'b형 헤모필루스 인플루엔자',        group: '4개월' },
+      { id: 'pcv2',    name: '폐렴구균(PCV) 2차',     months: 4,  detail: '13가 단백결합백신',               group: '4개월' },
+      { id: 'rv2',     name: '로타바이러스 2차',       months: 4,  detail: '구강 투여 (먹는 백신)',            group: '4개월' },
+      // 6개월
+      { id: 'dtap3',   name: 'DTaP 3차',             months: 6,  detail: '디프테리아·파상풍·백일해',         group: '6개월' },
+      { id: 'hib3',    name: 'Hib 3차',              months: 6,  detail: 'b형 헤모필루스 인플루엔자',        group: '6개월' },
+      { id: 'pcv3',    name: '폐렴구균(PCV) 3차',     months: 6,  detail: '13가 단백결합백신',               group: '6개월' },
+      { id: 'hepb3',   name: 'B형간염 3차',           months: 6,  detail: '1차 접종 후 6개월 뒤',            group: '6개월' },
+      { id: 'flu1',    name: '인플루엔자 (매년)',       months: 6,  detail: '매년 10~11월 접종 권장',          group: '6개월' },
+      // 12개월
+      { id: 'mmr1',    name: 'MMR 1차',              months: 12, detail: '홍역·유행성이하선염·풍진',         group: '12개월' },
+      { id: 'var1',    name: '수두 1차',              months: 12, detail: '12~15개월 접종',                  group: '12개월' },
+      { id: 'hepa1',   name: 'A형간염 1차',           months: 12, detail: '12~23개월 접종',                  group: '12개월' },
+      { id: 'je1',     name: '일본뇌염 1차',          months: 12, detail: '불활성화 백신 기준',               group: '12개월' },
+      { id: 'je2',     name: '일본뇌염 2차',          months: 13, detail: '1차 접종 후 1~2주 뒤',            group: '12개월' },
+      // 15~18개월
+      { id: 'dtap4',   name: 'DTaP 4차',             months: 15, detail: '디프테리아·파상풍·백일해',         group: '15~18개월' },
+      { id: 'hib4',    name: 'Hib 4차',              months: 15, detail: 'b형 헤모필루스 인플루엔자',        group: '15~18개월' },
+      { id: 'pcv4',    name: '폐렴구균(PCV) 4차',     months: 15, detail: '13가 단백결합백신',               group: '15~18개월' },
+      { id: 'hepa2',   name: 'A형간염 2차',           months: 18, detail: '1차 접종 후 6개월 뒤',            group: '15~18개월' },
+      // 24개월
+      { id: 'je3',     name: '일본뇌염 3차',          months: 24, detail: '2차 접종 후 12개월 뒤',           group: '24개월' },
+      // 4~6세
+      { id: 'dtap5',   name: 'DTaP 5차',             months: 54, detail: '만 4~6세 추가접종',               group: '4~6세' },
+      { id: 'ipv4',    name: '폴리오(IPV) 4차',       months: 54, detail: '만 4~6세 추가접종',               group: '4~6세' },
+      { id: 'mmr2',    name: 'MMR 2차',              months: 54, detail: '만 4~6세 추가접종',               group: '4~6세' },
+      { id: 'je4',     name: '일본뇌염 4차',          months: 54, detail: '만 4~6세 추가접종',               group: '4~6세' },
+    ];
+
+    let currentMonths = 0;
+    let doneVaccines  = {};
+    let currentFilter = 'all';
+
+    const DONE_KEY = 'sk_vaccines_done';
+
+    function loadDoneVaccines() {
+      try {
+        const saved = localStorage.getItem(DONE_KEY);
+        return saved ? JSON.parse(saved) : {};
+      } catch { return {}; }
+    }
+
+    function saveDoneVaccines() {
+      localStorage.setItem(DONE_KEY, JSON.stringify(doneVaccines));
+    }
+
+    function getStatus(vaccine) {
+      if (doneVaccines[vaccine.id]) return 'done';
+      // 현재 개월수 기준 ±2개월 이내면 upcoming
+      if (vaccine.months <= currentMonths + 2 && vaccine.months >= currentMonths - 1) return 'upcoming';
+      if (vaccine.months <= currentMonths) return 'upcoming'; // 지났는데 안 맞은 것
+      return 'future';
+    }
+
+    function toggleVaccine(id) {
+      doneVaccines[id] = !doneVaccines[id];
+      if (!doneVaccines[id]) delete doneVaccines[id];
+      saveDoneVaccines();
+      renderVaccines();
+      updateProgress();
+      updateNextBanner();
+    }
+
+    function updateProgress() {
+      const total = VACCINE_SCHEDULE.length;
+      const done  = Object.keys(doneVaccines).length;
+      const pct   = Math.round((done / total) * 100);
+      document.getElementById('progress-text').textContent = `${done} / ${total}`;
+      document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    function updateNextBanner() {
+      const upcoming = VACCINE_SCHEDULE.filter(v =>
+        !doneVaccines[v.id] && v.months <= currentMonths + 3 && v.months >= currentMonths - 1
+      );
+      const el = document.getElementById('next-list');
+      if (upcoming.length === 0) {
+        document.getElementById('next-banner').style.display = 'none';
+      } else {
+        document.getElementById('next-banner').style.display = 'block';
+        el.innerHTML = upcoming.slice(0, 4).map(v =>
+          `• ${v.name} <span style="color:var(--text-light);font-size:11px;">(${v.months}개월)</span>`
+        ).join('<br>');
+      }
+    }
+
+    function filterVaccine(type, btn) {
+      currentFilter = type;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderVaccines();
+    }
+
+    function renderVaccines() {
+      const container = document.getElementById('vaccine-list');
+      container.innerHTML = '';
+
+      // 그룹별로 묶기
+      const groups = {};
+      VACCINE_SCHEDULE.forEach(v => {
+        const status = getStatus(v);
+        if (currentFilter !== 'all' && status !== currentFilter) return;
+        if (!groups[v.group]) groups[v.group] = [];
+        groups[v.group].push({ ...v, status });
+      });
+
+      if (Object.keys(groups).length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:32px 20px;color:var(--text-light);font-size:14px;">
+            해당하는 접종이 없어요
+          </div>`;
+        return;
+      }
+
+      Object.entries(groups).forEach(([groupName, vaccines]) => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'vaccine-group';
+
+        const doneCount = vaccines.filter(v => v.status === 'done').length;
+        groupEl.innerHTML = `
+          <p class="vaccine-group-title">
+            ${groupName}
+            <span class="vaccine-group-badge">${doneCount}/${vaccines.length} 완료</span>
+          </p>
+        `;
+
+        vaccines.forEach(v => {
+          const item = document.createElement('div');
+          item.className = `vaccine-item ${v.status}`;
+
+          let tagText = '', tagClass = '';
+          if (v.status === 'done') { tagText = '✓ 완료'; tagClass = 'done-tag'; }
+          else if (v.status === 'upcoming') { tagText = '⚡ 곧 접종'; tagClass = 'upcoming-tag'; }
+          else { tagText = `${v.months}개월`; tagClass = 'future-tag'; }
+
+          item.innerHTML = `
+            <div class="vaccine-checkbox" onclick="toggleVaccine('${v.id}')">
+              ${v.status === 'done' ? '✓' : ''}
+            </div>
+            <div class="vaccine-info">
+              <p class="vaccine-name">${v.name}</p>
+              <p class="vaccine-detail">${v.detail}</p>
+            </div>
+            <span class="vaccine-time ${tagClass}">${tagText}</span>
+          `;
+
+          groupEl.appendChild(item);
+        });
+
+        container.appendChild(groupEl);
+      });
+    }
+
+    function shareVaccineInfo() {
+      window.suksuki.shareCurrentPage(
+        '쑥쑥이 - 예방접종 관리',
+        '국가예방접종 전체 스케줄을 한눈에! 맞은 것 체크하고 다음 접종을 확인하세요.'
+      );
+    }
+
+    function initVaccine() {
+      const type  = localStorage.getItem(window.suksuki.K.TYPE);
+      const birth = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
+      const name  = localStorage.getItem(window.suksuki.K.BABY_NAME) || '우리아이';
+
+      if (type !== 'baby' || !birth) {
+        document.getElementById('view-no-data').classList.remove('hidden');
+        return;
+      }
+
+      currentMonths = window.suksuki.calcMonths(birth);
+      doneVaccines  = loadDoneVaccines();
+
+      document.getElementById('view-vaccine').classList.remove('hidden');
+      document.getElementById('baby-name-display').textContent = name;
+
+      updateProgress();
+      updateNextBanner();
+      renderVaccines();
+    }
+
+    window.addEventListener('load', function() {
+      if (window.suksuki) initVaccine();
+      else setTimeout(initVaccine, 100);
+    });
+  </script>
+</body>
+</html>
