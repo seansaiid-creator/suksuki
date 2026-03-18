@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>정부 지원금 검색 - 쑥쑥이</title>
+  <meta name="description" content="임신·출산·육아 관련 정부 지원금을 한 곳에서. 아이 나이에 맞는 혜택을 놓치지 마세요." />
+  <meta name="theme-color" content="#1A3C34" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    .subsidy-hero {
+      background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+      padding: 24px 20px 28px;
+      color: #fff;
+    }
+
+    .subsidy-hero-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .subsidy-hero-desc  { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 16px; }
+
+    .subsidy-summary {
+      display: flex;
+      gap: 10px;
+    }
+
+    .subsidy-summary-item {
+      flex: 1;
+      background: rgba(255,255,255,0.12);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .subsidy-summary-value {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--secondary);
+      margin-bottom: 2px;
+    }
+
+    .subsidy-summary-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* 필터 */
+    .filter-wrap {
+      padding: 16px 16px 0;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .filter-wrap::-webkit-scrollbar { display: none; }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-mid);
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      white-space: nowrap;
+      min-height: 38px;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* 지원금 카드 */
+    .subsidy-list { padding: 16px 16px 0; }
+
+    .subsidy-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .subsidy-card.important {
+      border-color: var(--secondary);
+      background: #FFFAF5;
+    }
+
+    .subsidy-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .subsidy-icon {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .subsidy-card-info { flex: 1; }
+
+    .subsidy-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .subsidy-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .subsidy-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+
+    .tag-amount   { background: #E8F5E9; color: #2E7D32; }
+    .tag-period   { background: var(--primary-light); color: var(--primary); }
+    .tag-type     { background: var(--bg); color: var(--text-mid); border: 1px solid var(--border); }
+    .tag-new      { background: #FFE0E0; color: #C62828; }
+
+    .subsidy-amount {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .subsidy-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .subsidy-how {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .subsidy-how-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .subsidy-btn-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-subsidy-apply {
+      flex: 1;
+      padding: 11px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      min-height: 44px;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-subsidy-share {
+      padding: 11px 14px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-mid);
+      min-height: 44px;
+    }
+
+    /* 설정 없을 때 */
+    .setup-prompt {
+      margin: 20px 16px 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .setup-prompt-icon  { font-size: 48px; margin-bottom: 14px; }
+    .setup-prompt-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .setup-prompt-desc  { font-size: 14px; color: var(--text-light); line-height: 1.7; margin-bottom: 20px; }
+
+    /* 임신 버전 */
+    .pregnant-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">🌱 <span>쑥쑥이</span></a>
+      <span class="header-sub">정부 지원금</span>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- 설정 없을 때 -->
+    <div id="view-no-data" class="hidden">
+      <div class="setup-prompt">
+        <div class="setup-prompt-icon">💰</div>
+        <h2 class="setup-prompt-title">아이 정보를 먼저 등록해주세요</h2>
+        <p class="setup-prompt-desc">아이 나이에 맞는 정부 지원금과 혜택을 자동으로 찾아드려요</p>
+        <a href="index.html" class="btn-primary" style="display:block;text-decoration:none;text-align:center;">홈에서 등록하기 →</a>
+      </div>
+    </div>
+
+    <!-- 지원금 메인 뷰 -->
+    <div id="view-subsidy" class="hidden">
+
+      <!-- 히어로 -->
+      <div class="subsidy-hero">
+        <div id="pregnant-badge" class="pregnant-badge hidden">🤰 임신 중 지원금</div>
+        <h1 class="subsidy-hero-title">💰 <span id="name-display">우리아이</span> 지원금</h1>
+        <p class="subsidy-hero-desc" id="subsidy-desc">받을 수 있는 지원금을 모아드렸어요</p>
+        <div class="subsidy-summary">
+          <div class="subsidy-summary-item">
+            <div class="subsidy-summary-value" id="summary-count">0</div>
+            <div class="subsidy-summary-label">해당 지원금</div>
+          </div>
+          <div class="subsidy-summary-item">
+            <div class="subsidy-summary-value" id="summary-monthly">0</div>
+            <div class="subsidy-summary-label">월 혜택 (만원)</div>
+          </div>
+          <div class="subsidy-summary-item">
+            <div class="subsidy-summary-value" id="summary-onetime">0</div>
+            <div class="subsidy-summary-label">일시금 (만원)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 필터 -->
+      <div class="filter-wrap">
+        <button class="filter-btn active" onclick="filterSubsidy('all', this)">전체</button>
+        <button class="filter-btn" onclick="filterSubsidy('현금', this)">현금 지원</button>
+        <button class="filter-btn" onclick="filterSubsidy('바우처', this)">바우처</button>
+        <button class="filter-btn" onclick="filterSubsidy('서비스', this)">서비스</button>
+        <button class="filter-btn" onclick="filterSubsidy('세금', this)">세금 혜택</button>
+      </div>
+
+      <!-- 지원금 목록 -->
+      <div class="subsidy-list" id="subsidy-list"></div>
+
+    </div>
+
+  </main>
+
+  <!-- 면책 고지 -->
+  <div class="disclaimer">
+    <p>⚠️ 지원금 정보는 <strong>2026년 기준 일반적인 참고 자료</strong>입니다. 지원 내용 및 금액은 정부 정책에 따라 변경될 수 있으며, 소득 수준·거주지역에 따라 다를 수 있어요. 정확한 정보는 <strong>복지로(bokjiro.go.kr)</strong> 또는 <strong>주민센터</strong>에서 확인하세요.</p>
+  </div>
+
+  <footer class="footer">
+    <p class="footer-logo">🌱 쑥쑥이</p>
+    <p class="footer-desc">임신부터 취학 전까지, 우리 아이 성장 파트너</p>
+    <div class="footer-links">
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="#">문의하기</a>
+    </div>
+    <p class="footer-copy">© 2026 suksuki.com</p>
+  </footer>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="bnav"><span class="bnav-icon">🏠</span><span class="bnav-label">홈</span></a>
+    <a href="growth.html" class="bnav"><span class="bnav-icon">📏</span><span class="bnav-label">성장</span></a>
+    <a href="vaccine.html" class="bnav"><span class="bnav-icon">💉</span><span class="bnav-label">접종</span></a>
+    <a href="recipe.html" class="bnav"><span class="bnav-icon">🍳</span><span class="bnav-label">레시피</span></a>
+    <a href="subsidy.html" class="bnav active"><span class="bnav-icon">💰</span><span class="bnav-label">지원금</span></a>
+  </nav>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="script.js"></script>
+  <script>
+    // 지원금 데이터 (2026년 기준)
+    const SUBSIDIES = [
+      // ===== 임신 =====
+      {
+        id: 's01', name: '임신·출산 진료비 지원 (국민행복카드)',
+        icon: '🏥', type: '바우처', important: true,
+        minMonths: -10, maxMonths: 2,
+        forPregnant: true,
+        amount: '100만원 (다태아 140만원)',
+        monthlyWon: 0, onetimeWon: 100,
+        desc: '임신 확인 후 산부인과·약국 등에서 사용할 수 있는 국민행복카드를 발급받아요. 임신 중 진료비, 분만 비용, 출산 이후 신생아 진료비로 사용 가능해요.',
+        how: '국민건강보험공단 또는 주민센터에서 신청. 임신 확인서 지참.',
+        url: 'https://www.nhis.or.kr',
+        tags: ['임신 즉시 신청'],
+      },
+      {
+        id: 's02', name: '엽산제·철분제 지원',
+        icon: '💊', type: '서비스', important: false,
+        minMonths: -10, maxMonths: 0,
+        forPregnant: true,
+        amount: '무료 제공',
+        monthlyWon: 0, onetimeWon: 0,
+        desc: '보건소에서 임신 초기에는 엽산제, 임신 중기 이후에는 철분제를 무료로 받을 수 있어요.',
+        how: '가까운 보건소 방문. 임신확인서 또는 임신 바우처 지참.',
+        url: 'https://www.bokjiro.go.kr',
+        tags: ['보건소 무료'],
+      },
+      {
+        id: 's03', name: '임산부 KTX 할인',
+        icon: '🚄', type: '서비스', important: false,
+        minMonths: -10, maxMonths: 1,
+        forPregnant: true,
+        amount: '30% 할인',
+        monthlyWon: 0, onetimeWon: 0,
+        desc: 'KTX 일반실 운임 30% 할인 혜택을 받을 수 있어요.',
+        how: '코레일 앱 또는 역 창구에서 임신확인서 제출 후 할인 적용.',
+        url: 'https://www.letskorail.com',
+        tags: ['임신 기간'],
+      },
+
+      // ===== 출산 =====
+      {
+        id: 's04', name: '첫만남이용권 (출생아 지원금)',
+        icon: '🎁', type: '현금', important: true,
+        minMonths: 0, maxMonths: 1,
+        forPregnant: false,
+        amount: '200만원 (첫째), 300만원 (둘째 이상)',
+        monthlyWon: 0, onetimeWon: 200,
+        desc: '아이가 태어나면 즉시 받을 수 있는 출생 축하 지원금이에요. 바우처 형태로 지급되며 다양한 유아용품 구매에 사용할 수 있어요.',
+        how: '출생 후 주민센터 또는 정부24에서 신청. 출생신고와 함께 신청 가능.',
+        url: 'https://www.gov.kr',
+        tags: ['출생 즉시'],
+      },
+      {
+        id: 's05', name: '부모급여',
+        icon: '👶', type: '현금', important: true,
+        minMonths: 0, maxMonths: 23,
+        forPregnant: false,
+        amount: '0세 100만원/월, 1세 50만원/월',
+        monthlyWon: 100, onetimeWon: 0,
+        desc: '만 0~1세 아이를 가정에서 직접 키우는 부모에게 매달 현금으로 지급돼요. 어린이집 이용 시 보육료로 전환돼요.',
+        how: '주민센터 또는 복지로에서 출생 후 60일 이내 신청 권장.',
+        url: 'https://www.bokjiro.go.kr',
+        tags: ['매월 지급', '핵심 혜택'],
+      },
+      {
+        id: 's06', name: '아동수당',
+        icon: '💝', type: '현금', important: true,
+        minMonths: 0, maxMonths: 95,
+        forPregnant: false,
+        amount: '10만원/월',
+        monthlyWon: 10, onetimeWon: 0,
+        desc: '만 8세 미만 모든 아동에게 매달 10만원을 지급해요. 소득 수준에 관계없이 모두 받을 수 있어요.',
+        how: '주민센터 또는 복지로·정부24에서 신청.',
+        url: 'https://www.bokjiro.go.kr',
+        tags: ['만 8세까지', '매월 지급'],
+      },
+      {
+        id: 's07', name: '출산 축하금 (지자체)',
+        icon: '🎉', type: '현금', important: false,
+        minMonths: 0, maxMonths: 3,
+        forPregnant: false,
+        amount: '지역마다 다름 (10만~수백만원)',
+        monthlyWon: 0, onetimeWon: 50,
+        desc: '거주하는 시·군·구에서 추가로 출산 축하금을 지급해요. 지역마다 금액이 다르니 주민센터에 꼭 문의하세요.',
+        how: '거주 지역 주민센터에 문의 및 신청.',
+        url: 'https://www.gov.kr',
+        tags: ['지역별 상이'],
+      },
+
+      // ===== 영아기 =====
+      {
+        id: 's08', name: '보육료 지원 (어린이집)',
+        icon: '🏫', type: '바우처', important: true,
+        minMonths: 0, maxMonths: 84,
+        forPregnant: false,
+        amount: '연령별 상이 (0세 약 54만원/월)',
+        monthlyWon: 54, onetimeWon: 0,
+        desc: '어린이집 이용 시 보육료를 국가에서 지원해줘요. 아이행복카드로 결제하면 자동으로 지원금이 적용돼요.',
+        how: '주민센터에서 아이행복카드 발급 후 어린이집 등록.',
+        url: 'https://www.childcare.go.kr',
+        tags: ['어린이집 이용 시'],
+      },
+      {
+        id: 's09', name: '가정양육수당',
+        icon: '🏠', type: '현금', important: false,
+        minMonths: 24, maxMonths: 84,
+        forPregnant: false,
+        amount: '10~20만원/월 (나이별 상이)',
+        monthlyWon: 15, onetimeWon: 0,
+        desc: '어린이집이나 유치원을 이용하지 않고 가정에서 아이를 키울 때 받을 수 있는 수당이에요.',
+        how: '주민센터 또는 복지로에서 신청.',
+        url: 'https://www.bokjiro.go.kr',
+        tags: ['가정 양육 시'],
+      },
+      {
+        id: 's10', name: '영아기 건강보험 혜택',
+        icon: '🏥', type: '서비스', important: false,
+        minMonths: 0, maxMonths: 12,
+        forPregnant: false,
+        amount: '본인부담금 면제',
+        monthlyWon: 0, onetimeWon: 0,
+        desc: '만 1세 미만 영아는 외래 진료 시 본인부담금이 면제돼요. 소아과 진료비가 크게 줄어들어요.',
+        how: '건강보험증 지참 후 자동 적용.',
+        url: 'https://www.nhis.or.kr',
+        tags: ['12개월 미만'],
+      },
+
+      // ===== 유아기 =====
+      {
+        id: 's11', name: '유아학비 지원 (유치원)',
+        icon: '🎒', type: '바우처', important: true,
+        minMonths: 36, maxMonths: 84,
+        forPregnant: false,
+        amount: '만 3~5세 월 22~29만원',
+        monthlyWon: 25, onetimeWon: 0,
+        desc: '유치원 이용 시 유아학비를 지원해요. 국공립·사립 모두 해당되며 아이행복카드로 결제해요.',
+        how: '주민센터에서 아이행복카드 발급 후 유치원 입학 시 신청.',
+        url: 'https://www.childcare.go.kr',
+        tags: ['만 3~5세'],
+      },
+      {
+        id: 's12', name: '도서관·문화시설 할인',
+        icon: '📚', type: '서비스', important: false,
+        minMonths: 0, maxMonths: 84,
+        forPregnant: false,
+        amount: '무료~50% 할인',
+        monthlyWon: 0, onetimeWon: 0,
+        desc: '국립 박물관, 도서관, 문화시설 등을 무료 또는 할인된 가격으로 이용할 수 있어요.',
+        how: '각 시설 방문 시 아동 나이 확인 후 자동 적용.',
+        url: 'https://www.mcst.go.kr',
+        tags: ['자동 적용'],
+      },
+      {
+        id: 's13', name: '다자녀 혜택 (2자녀 이상)',
+        icon: '👨‍👩‍👧‍👦', type: '세금', important: false,
+        minMonths: 0, maxMonths: 84,
+        forPregnant: false,
+        amount: '다양한 세금·공과금 감면',
+        monthlyWon: 0, onetimeWon: 0,
+        desc: '2자녀 이상 가정은 전기요금, 도시가스, 자동차 취득세 감면 등 다양한 혜택이 있어요.',
+        how: '주민센터에서 다자녀 확인서 발급 후 각 기관에 제출.',
+        url: 'https://www.bokjiro.go.kr',
+        tags: ['2자녀 이상'],
+      },
+      {
+        id: 's14', name: '세금 공제 (자녀 인적공제)',
+        icon: '📊', type: '세금', important: false,
+        minMonths: 0, maxMonths: 240,
+        forPregnant: false,
+        amount: '1인당 150만원 공제',
+        monthlyWon: 0, onetimeWon: 0,
+        desc: '연말정산 시 자녀 1인당 150만원을 소득에서 공제받을 수 있어요. 자녀 세액공제도 추가로 받을 수 있어요.',
+        how: '연말정산 시 자녀 정보 입력. 회사 담당자 또는 홈택스에서 처리.',
+        url: 'https://www.hometax.go.kr',
+        tags: ['연말정산'],
+      },
+      {
+        id: 's15', name: '산모·신생아 건강관리 서비스',
+        icon: '👩‍⚕️', type: '서비스', important: true,
+        minMonths: 0, maxMonths: 2,
+        forPregnant: false,
+        amount: '5~20일 (소득별 차등)',
+        monthlyWon: 0, onetimeWon: 0,
+        desc: '출산 후 전문 산후도우미가 가정을 방문해 산모와 신생아를 돌봐줘요. 소득에 따라 본인부담금이 달라요.',
+        how: '임신 중 또는 출산 후 주민센터에 신청. 조기 신청 권장.',
+        url: 'https://www.bokjiro.go.kr',
+        tags: ['출산 후 신청'],
+      },
+    ];
+
+    let currentMonths = 0;
+    let isPregnant    = false;
+    let currentFilter = 'all';
+
+    function filterSubsidy(type, btn) {
+      currentFilter = type;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSubsidies();
+    }
+
+    function getApplicableSubsidies() {
+      return SUBSIDIES.filter(s => {
+        if (isPregnant) return s.forPregnant || (s.minMonths <= 0 && s.maxMonths >= 0);
+        return !s.forPregnant && s.minMonths <= currentMonths && s.maxMonths >= currentMonths;
+      });
+    }
+
+    function renderSubsidies() {
+      const container = document.getElementById('subsidy-list');
+      container.innerHTML = '';
+
+      let list = getApplicableSubsidies();
+
+      if (currentFilter !== 'all') {
+        list = list.filter(s => s.type === currentFilter);
+      }
+
+      // 중요한 것 먼저
+      list.sort((a, b) => (b.important ? 1 : 0) - (a.important ? 1 : 0));
+
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:32px 20px;color:var(--text-light);font-size:14px;">해당하는 지원금이 없어요</div>`;
+        return;
+      }
+
+      list.forEach(s => {
+        const card = document.createElement('div');
+        card.className = `subsidy-card ${s.important ? 'important' : ''}`;
+        card.innerHTML = `
+          <div class="subsidy-card-header">
+            <span class="subsidy-icon">${s.icon}</span>
+            <div class="subsidy-card-info">
+              <p class="subsidy-name">${s.name}</p>
+              <div class="subsidy-tags">
+                <span class="subsidy-tag tag-type">${s.type}</span>
+                ${s.tags.map(t => `<span class="subsidy-tag tag-period">${t}</span>`).join('')}
+                ${s.important ? `<span class="subsidy-tag tag-new">⭐ 중요</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <p class="subsidy-amount">${s.amount}</p>
+          <p class="subsidy-desc">${s.desc}</p>
+          <div class="subsidy-how">
+            <p class="subsidy-how-title">📋 신청 방법</p>
+            ${s.how}
+          </div>
+          <div class="subsidy-btn-row">
+            <a href="${s.url}" target="_blank" class="btn-subsidy-apply">🔗 신청하러 가기</a>
+            <button class="btn-subsidy-share" onclick="shareSubsidy('${s.name}')">공유</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function updateSummary() {
+      const list = getApplicableSubsidies();
+      const monthly  = list.reduce((sum, s) => sum + (s.monthlyWon || 0), 0);
+      const onetime  = list.reduce((sum, s) => sum + (s.onetimeWon || 0), 0);
+      document.getElementById('summary-count').textContent   = list.length;
+      document.getElementById('summary-monthly').textContent = monthly;
+      document.getElementById('summary-onetime').textContent = onetime;
+    }
+
+    function shareSubsidy(name) {
+      const url = 'https://suksuki.com/subsidy.html';
+      if (navigator.share) {
+        navigator.share({
+          title: `쑥쑥이 - ${name}`,
+          text: `${name} 지원금 정보! 쑥쑥이에서 확인해보세요 💰`,
+          url,
+        }).catch(() => window.suksuki.copyLink());
+      } else {
+        window.suksuki.copyLink();
+        window.suksuki.showToast('링크 복사됐어요! 🔗');
+      }
+    }
+
+    function initSubsidy() {
+      const type     = localStorage.getItem(window.suksuki.K.TYPE);
+      const birth    = localStorage.getItem(window.suksuki.K.BABY_BIRTH);
+      const dueDate  = localStorage.getItem(window.suksuki.K.DUE_DATE);
+      const babyName = localStorage.getItem(window.suksuki.K.BABY_NAME);
+      const momName  = localStorage.getItem(window.suksuki.K.MOM_NAME);
+
+      if (!type) {
+        document.getElementById('view-no-data').classList.remove('hidden');
+        return;
+      }
+
+      isPregnant    = type === 'pregnant';
+      currentMonths = birth ? window.suksuki.calcMonths(birth) : 0;
+
+      const displayName = isPregnant
+        ? (momName || '예비맘')
+        : (babyName || '우리아이');
+
+      document.getElementById('view-subsidy').classList.remove('hidden');
+      document.getElementById('name-display').textContent = displayName;
+
+      if (isPregnant) {
+        document.getElementById('pregnant-badge').classList.remove('hidden');
+        document.getElementById('subsidy-desc').textContent = '임신 중 받을 수 있는 지원금을 모아드렸어요';
+      } else {
+        document.getElementById('subsidy-desc').textContent =
+          `현재 ${currentMonths}개월 · 받을 수 있는 지원금을 모아드렸어요`;
+      }
+
+      updateSummary();
+      renderSubsidies();
+    }
+
+    window.addEventListener('load', function() {
+      if (window.suksuki) initSubsidy();
+      else setTimeout(initSubsidy, 100);
+    });
+  </script>
+</body>
+</html>
