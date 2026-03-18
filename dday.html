@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>D-day 카운트다운 - 쑥쑥이</title>
+  <meta name="description" content="출산 예정일까지 D-day 카운트다운. 매일 아이와 함께하는 특별한 순간을 기록하세요." />
+  <meta name="theme-color" content="#1A3C34" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* D-day 전용 스타일 */
+    .dday-hero {
+      background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+      padding: 32px 20px 36px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .dday-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 8px;
+    }
+
+    .dday-number {
+      font-size: 96px;
+      font-weight: 900;
+      color: var(--secondary);
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -2px;
+    }
+
+    .dday-date {
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 20px;
+    }
+
+    .dday-info-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .dday-info-chip {
+      background: rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.9);
+      font-weight: 600;
+    }
+
+    /* 주수별 태아 정보 */
+    .fetus-card {
+      background: var(--card);
+      margin: 16px 16px 0;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .fetus-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fetus-info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .fetus-info-item {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .fetus-info-value {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 2px;
+    }
+
+    .fetus-info-label {
+      font-size: 10px;
+      color: var(--text-light);
+    }
+
+    .fetus-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      background: var(--primary-light);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+
+    /* 공유 섹션 */
+    .share-section {
+      margin: 16px 16px 0;
+    }
+
+    .share-section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .btn-insta {
+      width: 100%;
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+      color: #fff;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      min-height: 54px;
+      margin-bottom: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-insta:active { opacity: 0.85; }
+
+    .share-row-2 {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* 아빠 알림 */
+    .dad-card {
+      background: #FFF8F0;
+      border: 1.5px solid #FFD199;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 16px 16px 0;
+    }
+
+    .dad-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dad-input-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .dad-input {
+      flex: 1;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      background: #fff;
+      outline: none;
+      min-height: 50px;
+    }
+
+    .dad-input:focus { border-color: var(--accent); }
+
+    .btn-dad {
+      background: var(--accent);
+      color: #fff;
+      padding: 13px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      min-height: 50px;
+      white-space: nowrap;
+    }
+
+    .dad-hint {
+      font-size: 12px;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+
+    /* 설정 없을 때 */
+    .setup-prompt {
+      margin: 20px 16px 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .setup-prompt-icon { font-size: 48px; margin-bottom: 14px; }
+    .setup-prompt-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .setup-prompt-desc { font-size: 14px; color: var(--text-light); line-height: 1.7; margin-bottom: 20px; }
+
+    /* D-day 카드 미리보기 */
+    .card-preview {
+      background: linear-gradient(135deg, #1A3C34, #2C7A6F);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-preview::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 140px; height: 140px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+
+    .card-preview-logo { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+    .card-preview-dday { font-size: 56px; font-weight: 900; color: var(--secondary); line-height: 1.1; margin-bottom: 4px; }
+    .card-preview-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .card-preview-url { font-size: 11px; color: rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">🌱 <span>쑥쑥이</span></a>
+      <span class="header-sub">D-day 카운트다운</span>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- 설정 없을 때 -->
+    <div id="view-no-data">
+      <div class="setup-prompt">
+        <div class="setup-prompt-icon">🤰</div>
+        <h2 class="setup-prompt-title">출산 예정일을 등록해주세요</h2>
+        <p class="setup-prompt-desc">출산 예정일을 입력하면 매일 D-day 카운트다운과 태아 발달 정보를 확인할 수 있어요</p>
+        <a href="index.html" class="btn-primary" style="display:block;text-decoration:none;text-align:center;">홈에서 등록하기 →</a>
+      </div>
+    </div>
+
+    <!-- D-day 메인 뷰 -->
+    <div id="view-dday" class="hidden">
+
+      <!-- D-day 히어로 -->
+      <div class="dday-hero">
+        <p class="dday-label" id="dday-label">출산까지</p>
+        <div class="dday-number" id="dday-number">D-0</div>
+        <p class="dday-date" id="dday-date">-</p>
+        <div class="dday-info-row">
+          <div class="dday-info-chip" id="dday-week">임신 -주차</div>
+          <div class="dday-info-chip" id="dday-trimester">-분기</div>
+        </div>
+      </div>
+
+      <!-- 태아 발달 정보 -->
+      <div class="fetus-card">
+        <p class="fetus-card-title">👶 이번 주 태아 발달</p>
+        <div class="fetus-info-grid">
+          <div class="fetus-info-item">
+            <div class="fetus-info-value" id="fetus-size">-</div>
+            <div class="fetus-info-label">크기 비교</div>
+          </div>
+          <div class="fetus-info-item">
+            <div class="fetus-info-value" id="fetus-weight">-</div>
+            <div class="fetus-info-label">몸무게</div>
+          </div>
+          <div class="fetus-info-item">
+            <div class="fetus-info-value" id="fetus-length">-</div>
+            <div class="fetus-info-label">키(길이)</div>
+          </div>
+        </div>
+        <div class="fetus-desc" id="fetus-desc">-</div>
+      </div>
+
+      <!-- D-day 카드 공유 -->
+      <div class="share-section">
+        <p class="share-section-title">📸 D-day 카드 공유하기</p>
+
+        <!-- 미리보기 -->
+        <div class="card-preview">
+          <p class="card-preview-logo">🌱 쑥쑥이</p>
+          <div class="card-preview-dday" id="preview-dday">D-0</div>
+          <p class="card-preview-name" id="preview-name">출산까지</p>
+          <p class="card-preview-url">suksuki.com</p>
+        </div>
+
+        <button class="btn-insta" onclick="doShareInstagram()">
+          📸 인스타그램 카드 저장하기
+        </button>
+        <div class="share-row-2">
+          <button class="btn-kakao" style="flex:1;" onclick="shareKakao()">💬 카카오톡</button>
+          <button class="btn-copy" style="flex:1;" onclick="copyLink()">🔗 링크 복사</button>
+        </div>
+      </div>
+
+      <!-- 아빠 알림 -->
+      <div class="dad-card">
+        <p class="dad-card-title">👨‍👩‍👧 아빠에게 D-day 알림 보내기</p>
+        <div class="dad-input-wrap">
+          <input class="dad-input" type="text" id="dad-contact-input" placeholder="카카오톡 ID 또는 전화번호" />
+          <button class="btn-dad" onclick="sendDadAlert()">보내기</button>
+        </div>
+        <p class="dad-hint">💌 아빠도 함께 출산을 준비할 수 있어요. 입력하신 연락처로 쑥쑥이 링크와 D-day 정보가 공유돼요.</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 면책 고지 -->
+  <div class="disclaimer">
+    <p>⚠️ 태아 발달 정보는 <strong>일반적인 참고 자료</strong>입니다. 임신 주수 및 태아 크기는 개인차가 있으며, 정확한 정보는 반드시 <strong>담당 산부인과 전문의와 상담</strong>하세요. 본 정보는 대한산부인과학회 기준을 참고하였습니다.</p>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <p class="footer-logo">🌱 쑥쑥이</p>
+    <p class="footer-desc">임신부터 취학 전까지, 우리 아이 성장 파트너</p>
+    <div class="footer-links">
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="#">문의하기</a>
+    </div>
+    <p class="footer-copy">© 2026 suksuki.com</p>
+  </footer>
+
+  <!-- 하단 탭바 -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bnav">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">홈</span>
+    </a>
+    <a href="growth.html" class="bnav">
+      <span class="bnav-icon">📏</span>
+      <span class="bnav-label">성장</span>
+    </a>
+    <a href="vaccine.html" class="bnav">
+      <span class="bnav-icon">💉</span>
+      <span class="bnav-label">접종</span>
+    </a>
+    <a href="recipe.html" class="bnav">
+      <span class="bnav-icon">🍳</span>
+      <span class="bnav-label">레시피</span>
+    </a>
+    <a href="subsidy.html" class="bnav">
+      <span class="bnav-icon">💰</span>
+      <span class="bnav-label">지원금</span>
+    </a>
+  </nav>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="script.js"></script>
+  <script>
+    // 주수별 태아 데이터
+    const fetusData = {
+      4:  { size: '양귀비씨', weight: '미미', length: '0.2cm', desc: '수정란이 자궁에 착상했어요. 신경관과 심장이 형성되기 시작해요.' },
+      5:  { size: '참깨', weight: '미미', length: '0.4cm', desc: '심장이 뛰기 시작해요. 뇌와 척수가 발달하고 있어요.' },
+      6:  { size: '완두콩', weight: '미미', length: '0.6cm', desc: '눈과 귀, 코가 생기기 시작해요. 팔다리 싹이 나타나요.' },
+      7:  { size: '블루베리', weight: '미미', length: '1.3cm', desc: '손가락과 발가락이 생기기 시작해요. 뇌가 빠르게 발달해요.' },
+      8:  { size: '라즈베리', weight: '1g', length: '1.6cm', desc: '모든 주요 장기가 형성되고 있어요. 초음파로 심장 소리를 들을 수 있어요.' },
+      9:  { size: '올리브', weight: '2g', length: '2.3cm', desc: '태아 움직임이 시작돼요. 손가락이 완성되고 있어요.' },
+      10: { size: '자두', weight: '4g', length: '3.1cm', desc: '이제 태아(胎兒)라고 불러요. 주요 장기가 거의 완성됐어요.' },
+      11: { size: '라임', weight: '7g', length: '4.1cm', desc: '손발을 활발히 움직여요. 피부가 투명하고 혈관이 보여요.' },
+      12: { size: '자두', weight: '14g', length: '5.4cm', desc: '1분기가 끝나가요. 유산 위험이 크게 줄어드는 시기예요.' },
+      13: { size: '키위', weight: '23g', length: '7.4cm', desc: '2분기 시작! 지문이 생기기 시작해요. 성별 구분이 가능해져요.' },
+      14: { size: '레몬', weight: '43g', length: '8.7cm', desc: '태아가 눈썹을 찡그리고 엄지를 빨 수 있어요.' },
+      16: { size: '아보카도', weight: '100g', length: '11.6cm', desc: '청각이 발달해서 엄마 목소리를 들을 수 있어요. 태교를 시작해보세요!' },
+      18: { size: '망고', weight: '190g', length: '14.2cm', desc: '태동을 처음 느낄 수 있는 시기예요. 작은 발차기가 느껴질 거예요!' },
+      20: { size: '바나나', weight: '300g', length: '16.4cm', desc: '절반이 지났어요! 정밀초음파로 기형 여부를 확인해요.' },
+      22: { size: '파파야', weight: '430g', length: '19.0cm', desc: '눈썹과 속눈썹이 생겼어요. 청각이 더 발달해요.' },
+      24: { size: '콩나물', weight: '600g', length: '21.0cm', desc: '폐가 발달하기 시작해요. 임신성 당뇨 검사를 받아야 해요.' },
+      26: { size: '양상추', weight: '760g', length: '23.0cm', desc: '눈을 뜨고 감을 수 있어요. 뇌가 매우 빠르게 발달해요.' },
+      28: { size: '가지', weight: '1kg', length: '25.0cm', desc: '3분기 시작! 뇌 발달이 폭발적으로 일어나요.' },
+      30: { size: '브로콜리', weight: '1.3kg', length: '27.0cm', desc: '머리카락이 자라고 있어요. 태아가 빛에 반응해요.' },
+      32: { size: '배추', weight: '1.7kg', length: '29.0cm', desc: '몸에 지방이 쌓이기 시작해요. 손톱과 발톱이 완성됐어요.' },
+      34: { size: '멜론', weight: '2.1kg', length: '32.0cm', desc: '면역력이 생기기 시작해요. 폐가 거의 완성됐어요.' },
+      36: { size: '상추 한포기', weight: '2.6kg', length: '34.0cm', desc: '언제 태어나도 건강하게 자랄 수 있어요. 분만 준비를 시작해요!' },
+      38: { size: '수박', weight: '3.0kg', length: '36.0cm', desc: '이제 언제든 나올 준비가 됐어요! 분만 가방을 준비하세요.' },
+      40: { size: '수박', weight: '3.3kg', length: '37.0cm', desc: '출산 예정일이에요! 아기와의 만남이 곧 이루어질 거예요 🎉' },
+    };
+
+    function getFetusData(week) {
+      const keys = Object.keys(fetusData).map(Number).sort((a,b) => a-b);
+      let matched = keys[0];
+      for (const k of keys) { if (week >= k) matched = k; }
+      return fetusData[matched];
+    }
+
+    function getWeekFromDueDate(dueDate) {
+      const due = new Date(dueDate);
+      const now = new Date();
+      const daysLeft = Math.round((due - now) / 86400000);
+      const totalDays = 280; // 40주
+      const daysElapsed = totalDays - daysLeft;
+      return Math.max(1, Math.min(40, Math.floor(daysElapsed / 7)));
+    }
+
+    function getTrimester(week) {
+      if (week <= 12) return '1분기 (초기)';
+      if (week <= 27) return '2분기 (중기)';
+      return '3분기 (말기)';
+    }
+
+    function initDday() {
+      const type    = localStorage.getItem(window.suksuki.K.TYPE);
+      const dueDate = localStorage.getItem(window.suksuki.K.DUE_DATE);
+      const dadContact = localStorage.getItem(window.suksuki.K.DAD_CONTACT);
+
+      if (type !== 'pregnant' || !dueDate) {
+        document.getElementById('view-no-data').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('view-no-data').classList.add('hidden');
+      document.getElementById('view-dday').classList.remove('hidden');
+
+      const dday  = window.suksuki.calcDday(dueDate);
+      const week  = getWeekFromDueDate(dueDate);
+      const fetus = getFetusData(week);
+      const momName = localStorage.getItem(window.suksuki.K.MOM_NAME) || '예비맘';
+
+      // D-day 표시
+      document.getElementById('dday-number').textContent = dday > 0 ? `D-${dday}` : 'D-Day!';
+      document.getElementById('dday-date').textContent   = `${window.suksuki.fmtDate(dueDate)} 출산 예정`;
+      document.getElementById('dday-week').textContent   = `임신 ${week}주차`;
+      document.getElementById('dday-trimester').textContent = getTrimester(week);
+
+      // 태아 정보
+      document.getElementById('fetus-size').textContent   = fetus.size;
+      document.getElementById('fetus-weight').textContent = fetus.weight;
+      document.getElementById('fetus-length').textContent = fetus.length;
+      document.getElementById('fetus-desc').textContent   = fetus.desc;
+
+      // 미리보기
+      document.getElementById('preview-dday').textContent = dday > 0 ? `D-${dday}` : 'D-Day!';
+      document.getElementById('preview-name').textContent = `${momName} 출산까지`;
+
+      // 아빠 연락처 미리 채우기
+      if (dadContact) document.getElementById('dad-contact-input').value = dadContact;
+    }
+
+    function doShareInstagram() {
+      const dday    = window.suksuki.calcDday(localStorage.getItem(window.suksuki.K.DUE_DATE));
+      const momName = localStorage.getItem(window.suksuki.K.MOM_NAME) || '예비맘';
+      window.suksuki.shareInstagram(dday, momName + ' 출산');
+    }
+
+    function sendDadAlert() {
+      const contact = document.getElementById('dad-contact-input').value.trim();
+      if (!contact) { window.suksuki.showToast('아빠 연락처를 입력해주세요 👨'); return; }
+
+      const dday = window.suksuki.calcDday(localStorage.getItem(window.suksuki.K.DUE_DATE));
+      const momName = localStorage.getItem(window.suksuki.K.MOM_NAME) || '예비맘';
+
+      // 연락처 저장
+      localStorage.setItem(window.suksuki.K.DAD_CONTACT, contact);
+
+      // 카카오톡 공유로 대체 (실제 문자 발송은 서버 필요)
+      const msg = `👶 ${momName}의 출산이 D-${dday}일 남았어요!\n쑥쑥이에서 함께 준비해요 🌱\nhttps://suksuki.com`;
+
+      if (navigator.share) {
+        navigator.share({ title: '쑥쑥이 D-day 알림', text: msg, url: 'https://suksuki.com' })
+          .then(() => window.suksuki.showToast('아빠에게 공유됐어요! 👨', 3000))
+          .catch(() => {
+            copyToClipboard(msg);
+            window.suksuki.showToast('메시지 복사됐어요! 카카오톡에 붙여넣기 해주세요 💬', 3000);
+          });
+      } else {
+        copyToClipboard(msg);
+        window.suksuki.showToast('메시지 복사됐어요! 카카오톡에 붙여넣기 해주세요 💬', 3000);
+      }
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+      } else {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
+    }
+
+    // script.js 완전 로드 후 실행
+    window.addEventListener('load', function() {
+      // window.suksuki 안전하게 확인
+      if (window.suksuki) {
+        initDday();
+      } else {
+        // 혹시 늦게 로드되면 재시도
+        setTimeout(initDday, 100);
+      }
+    });
+  </script>
+</body>
+</html>
