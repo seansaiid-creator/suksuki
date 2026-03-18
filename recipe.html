@@ -714,10 +714,19 @@
       renderRecipes();
     }
 
-    window.addEventListener('load', function() {
-      if (window.suksuki) initRecipe();
-      else setTimeout(initRecipe, 100);
-    });
+    // suksuki 준비 확인 후 실행
+    function _waitAndInit() {
+      if (window.suksuki && window.suksuki.K) {
+        initRecipe();
+      } else {
+        setTimeout(_waitAndInit, 50);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', _waitAndInit);
+    } else {
+      _waitAndInit();
+    }
   </script>
 </body>
 </html>

@@ -131,10 +131,25 @@
     <!-- 대시보드 뷰 (저장 후) -->
     <div id="view-dashboard" class="hidden">
 
+      <!-- 임신 중 D-day 히어로 (임신 중일 때만 표시) -->
+      <div id="dday-hero-home" class="hidden">
+        <a href="dday.html" style="text-decoration:none;">
+          <div class="dday-home-hero">
+            <p class="dday-home-label">출산까지</p>
+            <div class="dday-home-number" id="dday-home-number">D-0</div>
+            <p class="dday-home-date" id="dday-home-date">-</p>
+            <div class="dday-home-chips">
+              <span class="dday-home-chip" id="dday-home-week">-</span>
+              <span class="dday-home-chip">자세히 보기 →</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
       <section class="baby-card-wrap">
         <div class="baby-card">
           <div class="baby-info">
-            <p class="baby-label">현재 등록된 아이</p>
+            <p class="baby-label" id="dash-label">현재 등록된 아이</p>
             <h2 class="baby-name" id="dash-name">-</h2>
             <p class="baby-months" id="dash-months">-</p>
           </div>

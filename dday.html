@@ -506,16 +506,19 @@
       }
     }
 
-    // script.js 완전 로드 후 실행
-    window.addEventListener('load', function() {
-      // window.suksuki 안전하게 확인
-      if (window.suksuki) {
+    // suksuki 준비 확인 후 실행
+    function _waitAndInit() {
+      if (window.suksuki && window.suksuki.K) {
         initDday();
       } else {
-        // 혹시 늦게 로드되면 재시도
-        setTimeout(initDday, 100);
+        setTimeout(_waitAndInit, 50);
       }
-    });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', _waitAndInit);
+    } else {
+      _waitAndInit();
+    }
   </script>
 </body>
 </html>

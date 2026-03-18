@@ -506,3 +506,49 @@ input { font-family: inherit; font-size: 16px; /* iOS 줌 방지 */ }
   .feature-grid { grid-template-columns: repeat(6, 1fr); }
   .quick-grid { grid-template-columns: repeat(5, 1fr); }
 }
+
+/* ===== 홈 D-day 히어로 (임신 중) ===== */
+.dday-home-hero {
+  background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+  padding: 32px 20px 28px;
+  color: #fff;
+  text-align: center;
+}
+
+.dday-home-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.dday-home-number {
+  font-size: 88px;
+  font-weight: 900;
+  color: var(--secondary);
+  line-height: 1;
+  margin-bottom: 10px;
+  letter-spacing: -2px;
+}
+
+.dday-home-date {
+  font-size: 15px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 16px;
+}
+
+.dday-home-chips {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.dday-home-chip {
+  background: rgba(255,255,255,0.15);
+  border-radius: 100px;
+  padding: 7px 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+}
