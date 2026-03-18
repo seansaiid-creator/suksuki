@@ -144,47 +144,91 @@ function showDashboard() {
     var dueDate = localStorage.getItem(K.DUE_DATE);
     var dday    = calcDday(dueDate);
 
-    // D-day 히어로 표시
-    var ddayHero = document.getElementById('dday-hero-home');
-    var ddayNum  = document.getElementById('dday-home-number');
-    var ddayDate = document.getElementById('dday-home-date');
-    var ddayWeek = document.getElementById('dday-home-week');
-    if (ddayHero) ddayHero.classList.remove('hidden');
-    if (ddayNum)  ddayNum.textContent  = 'D-' + dday;
-    if (ddayDate) ddayDate.textContent = fmtDate(dueDate) + ' 출산 예정';
-
-    // 임신 주수 계산 (40주 기준)
-    var daysLeft    = dday;
-    var daysElapsed = 280 - daysLeft;
-    var week        = Math.max(1, Math.min(40, Math.floor(daysElapsed / 7)));
-    if (ddayWeek) ddayWeek.textContent = '임신 ' + week + '주차';
-
     // 태명 처리
     var babyNick = momName && momName !== '예비맘' ? momName : '아가';
 
-    // 홈 D-day 레이블을 "우리 [태명] 만나기"로 변경
-    var ddayHeroLabel = document.getElementById('dday-home-label');
-    if (ddayHeroLabel) ddayHeroLabel.textContent = '우리 ' + babyNick + ' 만나기';
+    // 4번 D-day 정확 계산: LMP = 예정일 - 280일
+    var dueObj = new Date(dueDate);
+    var lmpObj = new Date(dueObj.getTime() - 280 * 24 * 60 * 60 * 1000);
+    var nowObj = new Date(); nowObj.setHours(0,0,0,0);
+    var daysElapsed = Math.round((nowObj - lmpObj) / (24 * 60 * 60 * 1000));
+    var week = Math.max(1, Math.min(40, Math.floor(daysElapsed / 7)));
+    var trimester = week <= 12 ? '1분기 (초기)' : week <= 27 ? '2분기 (중기)' : '3분기 (말기)';
 
-    // 카드는 태명으로 표시
-    var dashLabel = document.getElementById('dash-label');
+    // D-day 히어로 표시
+    var ddayHero = document.getElementById('dday-hero-home');
+    if (ddayHero) ddayHero.classList.remove('hidden');
+
+    var ddayHeroLabel = document.getElementById('dday-home-label');
+    var ddayNum  = document.getElementById('dday-home-number');
+    var ddayDate = document.getElementById('dday-home-date');
+    var ddayWeek = document.getElementById('dday-home-week');
+    var ddayTrim = document.getElementById('dday-home-trimester');
+    if (ddayHeroLabel) ddayHeroLabel.textContent = '우리 ' + babyNick + ' 만나기';
+    if (ddayNum)  ddayNum.textContent  = 'D-' + dday;
+    if (ddayDate) ddayDate.textContent = fmtDate(dueDate) + ' 출산 예정';
+    if (ddayWeek) ddayWeek.textContent = '임신 ' + week + '주차';
+    if (ddayTrim) ddayTrim.textContent = trimester;
+
+    // 2번: 태아 발달 정보 (dday.html과 동일한 데이터)
+    var fetusDataHome = {
+      4:{size:'양귀비씨',weight:'미미',length:'0.2cm',desc:'수정란이 자궁에 착상했어요. 신경관과 심장이 형성되기 시작해요.'},
+      5:{size:'참깨',weight:'미미',length:'0.4cm',desc:'심장이 뛰기 시작해요. 뇌와 척수가 발달하고 있어요.'},
+      6:{size:'완두콩',weight:'미미',length:'0.6cm',desc:'눈과 귀, 코가 생기기 시작해요. 팔다리 싹이 나타나요.'},
+      7:{size:'블루베리',weight:'미미',length:'1.3cm',desc:'손가락과 발가락이 생기기 시작해요. 뇌가 빠르게 발달해요.'},
+      8:{size:'라즈베리',weight:'1g',length:'1.6cm',desc:'모든 주요 장기가 형성되고 있어요. 초음파로 심장 소리를 들을 수 있어요.'},
+      9:{size:'올리브',weight:'2g',length:'2.3cm',desc:'태아 움직임이 시작돼요. 손가락이 완성되고 있어요.'},
+      10:{size:'자두',weight:'4g',length:'3.1cm',desc:'이제 태아라고 불러요. 주요 장기가 거의 완성됐어요.'},
+      12:{size:'자두',weight:'14g',length:'5.4cm',desc:'1분기가 끝나가요. 유산 위험이 크게 줄어드는 시기예요.'},
+      14:{size:'레몬',weight:'43g',length:'8.7cm',desc:'태아가 눈썹을 찡그리고 엄지를 빨 수 있어요.'},
+      16:{size:'아보카도',weight:'100g',length:'11.6cm',desc:'청각이 발달해서 엄마 목소리를 들을 수 있어요. 태교를 시작해보세요!'},
+      18:{size:'망고',weight:'190g',length:'14.2cm',desc:'태동을 처음 느낄 수 있는 시기예요. 작은 발차기가 느껴질 거예요!'},
+      20:{size:'바나나',weight:'300g',length:'16.4cm',desc:'절반이 지났어요! 정밀초음파로 기형 여부를 확인해요.'},
+      24:{size:'콩나물',weight:'600g',length:'21.0cm',desc:'폐가 발달하기 시작해요. 임신성 당뇨 검사를 받아야 해요.'},
+      28:{size:'가지',weight:'1kg',length:'25.0cm',desc:'3분기 시작! 뇌 발달이 폭발적으로 일어나요.'},
+      32:{size:'배추',weight:'1.7kg',length:'29.0cm',desc:'몸에 지방이 쌓이기 시작해요. 손톱과 발톱이 완성됐어요.'},
+      36:{size:'상추 한포기',weight:'2.6kg',length:'34.0cm',desc:'언제 태어나도 건강하게 자랄 수 있어요. 분만 준비를 시작해요!'},
+      38:{size:'수박',weight:'3.0kg',length:'36.0cm',desc:'이제 언제든 나올 준비가 됐어요! 분만 가방을 준비하세요.'},
+      40:{size:'수박',weight:'3.3kg',length:'37.0cm',desc:'출산 예정일이에요! 아기와의 만남이 곧 이루어질 거예요 🎉'},
+    };
+    var fetusKeys = Object.keys(fetusDataHome).map(Number).sort(function(a,b){return a-b;});
+    var matchedWeek = fetusKeys[0];
+    for (var fi=0; fi<fetusKeys.length; fi++) { if (week >= fetusKeys[fi]) matchedWeek = fetusKeys[fi]; }
+    var fetus = fetusDataHome[matchedWeek];
+    var homeSize   = document.getElementById('home-fetus-size');
+    var homeWeight = document.getElementById('home-fetus-weight');
+    var homeLength = document.getElementById('home-fetus-length');
+    var homeDesc   = document.getElementById('home-fetus-desc');
+    if (homeSize)   homeSize.textContent   = fetus.size;
+    if (homeWeight) homeWeight.textContent = fetus.weight;
+    if (homeLength) homeLength.textContent = fetus.length;
+    if (homeDesc)   homeDesc.textContent   = fetus.desc;
+
+    // 아이 카드 - 태명 표시
+    var dashLabel   = document.getElementById('dash-label');
     var dashName2   = document.getElementById('dash-name');
     var dashMonths2 = document.getElementById('dash-months');
-    if (dashLabel)  dashLabel.textContent  = '태명';
+    if (dashLabel)   dashLabel.textContent   = '태명';
     if (dashName2)   dashName2.textContent   = babyNick + ' 🤰';
     if (dashMonths2) dashMonths2.textContent = '출산 D-' + dday + ' (' + fmtDate(dueDate) + ')';
 
+    // 3번: 이번달 챙겨야 할 것 (링크 연결)
     var listEl2 = document.getElementById('this-month-list');
     if (listEl2) {
       var pregTasks = [
-        '💉 출생 후 예방접종 미리 보기',
-        '💰 임신 중 받을 수 있는 지원금 확인',
-        '🍳 출생 후 이유식 레시피 미리 보기',
+        { text: '💉 출생 후 예방접종 스케줄 확인', url: 'vaccine.html' },
+        { text: '💰 임신 중 받을 수 있는 지원금 확인', url: 'subsidy.html' },
+        { text: '🍳 출생 후 이유식 레시피 미리 보기', url: 'recipe.html' },
       ];
       listEl2.innerHTML = pregTasks.map(function(t) {
-        return '<div class="this-month-item">' + t + '</div>';
+        return '<div class="this-month-item"><a href="' + t.url + '">' + t.text + '</a></div>';
       }).join('');
     }
+
+    // 5번: D-day 공유 섹션 표시
+    var ddayShare = document.getElementById('dday-share-home');
+    if (ddayShare) ddayShare.classList.remove('hidden');
+
     onboarding.classList.add('hidden');
     dashboard.classList.remove('hidden');
   }
@@ -227,6 +271,35 @@ function resetInfo() {
   }, 100);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== 5번: 홈에서 D-day 인스타/카카오 공유 =====
+function doShareInstagramHome() {
+  var dday    = calcDday(localStorage.getItem(K.DUE_DATE));
+  var momName = localStorage.getItem(K.MOM_NAME) || '예비맘';
+  var babyNick = momName && momName !== '예비맘' ? momName : '아가';
+  shareInstagram(dday, '우리 ' + babyNick + ' 만나기');
+}
+
+function shareDdayKakaoHome() {
+  var dday    = calcDday(localStorage.getItem(K.DUE_DATE));
+  var momName = localStorage.getItem(K.MOM_NAME) || '예비맘';
+  var babyNick = momName && momName !== '예비맘' ? momName : '아가';
+  var text = '우리 ' + babyNick + ' 만나기 D-' + dday + '!\n\n쑥쑥이에서 함께 준비해요 🌱\nhttps://suksuki.com\n\n(카카오톡 내부에서 열릴 경우 우측 상단 ··· → 다른 브라우저로 열기를 눌러주세요)';
+  if (navigator.share) {
+    navigator.share({ title: '쑥쑥이 D-day', text: text, url: 'https://suksuki.com' })
+      .catch(function() {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            showToast('메시지 복사됐어요! 카카오톡에 붙여넣기 해주세요 💬', 3000);
+          });
+        }
+      });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('메시지 복사됐어요! 카카오톡에 붙여넣기 해주세요 💬', 3000);
+    });
+  }
 }
 
 // ===== 카카오톡 공유 =====

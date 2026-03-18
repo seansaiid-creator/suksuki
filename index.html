@@ -142,19 +142,38 @@
 
       <!-- 임신 중 D-day 히어로 (임신 중일 때만 표시) -->
       <div id="dday-hero-home" class="hidden">
-        <a href="dday.html" style="text-decoration:none;">
-          <div class="dday-home-hero">
-            <p class="dday-home-label" id="dday-home-label">출산까지</p>
-            <div class="dday-home-number" id="dday-home-number">D-0</div>
-            <p class="dday-home-date" id="dday-home-date">-</p>
-            <div class="dday-home-chips">
-              <span class="dday-home-chip" id="dday-home-week">-</span>
-              <span class="dday-home-chip">자세히 보기 →</span>
+        <div class="dday-home-hero">
+          <p class="dday-home-label" id="dday-home-label">출산까지</p>
+          <div class="dday-home-number" id="dday-home-number">D-0</div>
+          <p class="dday-home-date" id="dday-home-date">-</p>
+          <div class="dday-home-chips">
+            <span class="dday-home-chip" id="dday-home-week">-</span>
+            <span class="dday-home-chip" id="dday-home-trimester">-</span>
+          </div>
+        </div>
+
+        <!-- 2번: 이번주 태아 발달 -->
+        <div class="fetus-home-card">
+          <p class="fetus-home-title">👶 이번 주 태아 발달</p>
+          <div class="fetus-home-grid">
+            <div class="fetus-home-item">
+              <span class="fetus-home-value" id="home-fetus-size">-</span>
+              <span class="fetus-home-label">크기</span>
+            </div>
+            <div class="fetus-home-item">
+              <span class="fetus-home-value" id="home-fetus-weight">-</span>
+              <span class="fetus-home-label">몸무게</span>
+            </div>
+            <div class="fetus-home-item">
+              <span class="fetus-home-value" id="home-fetus-length">-</span>
+              <span class="fetus-home-label">키(길이)</span>
             </div>
           </div>
-        </a>
+          <p class="fetus-home-desc" id="home-fetus-desc">-</p>
+        </div>
       </div>
 
+      <!-- 아이 카드 -->
       <section class="baby-card-wrap">
         <div class="baby-card">
           <div class="baby-info">
@@ -164,40 +183,25 @@
           </div>
           <button class="btn-edit" onclick="resetInfo()">✏️ 수정</button>
         </div>
+        <!-- 3번: 이번 달 챙겨야 할 것 (링크 연결) -->
         <div class="this-month-box" id="this-month-box">
           <p class="this-month-title">⚡ 이번 달 챙겨야 할 것</p>
           <div id="this-month-list"></div>
         </div>
       </section>
 
-      <section class="quick-section">
-        <h2 class="section-title">빠른 메뉴</h2>
-        <div class="quick-grid">
-          <a href="dday.html" class="quick-card">
-            <span class="qi">📅</span><span class="qn">D-day</span>
-          </a>
-          <a href="growth.html" class="quick-card">
-            <span class="qi">📏</span><span class="qn">성장정보</span>
-          </a>
-          <a href="vaccine.html" class="quick-card">
-            <span class="qi">💉</span><span class="qn">예방접종</span>
-          </a>
-          <a href="recipe.html" class="quick-card">
-            <span class="qi">🍳</span><span class="qn">레시피</span>
-          </a>
-          <a href="subsidy.html" class="quick-card">
-            <span class="qi">💰</span><span class="qn">지원금</span>
-          </a>
+      <!-- 5번: D-day 카드 공유 (임신 중일 때만) -->
+      <div id="dday-share-home" class="hidden">
+        <div class="dday-share-home-wrap">
+          <button class="btn-insta-home" onclick="doShareInstagramHome()">
+            📸 인스타그램에 D-day 카드 업로드하기
+          </button>
+          <div class="share-row" style="margin-top:10px;">
+            <button class="btn-kakao" onclick="shareDdayKakaoHome()">💬 카카오톡으로 D-day 공유하기</button>
+            <button class="btn-link-copy" onclick="copyLink()">🔗 링크복사</button>
+          </div>
         </div>
-      </section>
-
-      <section class="share-banner">
-        <p class="share-title">친구에게 쑥쑥이 알려주기 🍼</p>
-        <div class="share-row">
-          <button class="btn-kakao" onclick="shareKakao()">💬 카카오톡</button>
-          <button class="btn-copy" onclick="copyLink()">🔗 링크 복사</button>
-        </div>
-      </section>
+      </div>
 
     </div>
 

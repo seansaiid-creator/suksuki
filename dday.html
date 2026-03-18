@@ -311,19 +311,11 @@
         </button>
         <div class="share-row-2">
           <button class="btn-kakao" style="flex:1;" onclick="shareDdayKakao()">💬 카카오톡으로 D-day 공유하기</button>
-          <button class="btn-copy" style="flex:1;" onclick="copyLink()">🔗 링크 복사</button>
+          <button class="btn-link-copy" style="flex:1;" onclick="copyLink()">🔗 링크복사</button>
         </div>
       </div>
 
-      <!-- 아빠 알림 -->
-      <div class="dad-card">
-        <p class="dad-card-title">👨‍👩‍👧 아빠에게 D-day 알림 보내기</p>
-        <div class="dad-input-wrap">
-          <input class="dad-input" type="text" id="dad-contact-input" placeholder="카카오톡 ID 또는 전화번호" />
-          <button class="btn-dad" onclick="sendDadAlert()">보내기</button>
-        </div>
-        <p class="dad-hint">💌 아빠도 함께 출산을 준비할 수 있어요. 입력하신 연락처로 쑥쑥이 링크와 D-day 정보가 공유돼요.</p>
-      </div>
+
 
     </div>
 
@@ -475,7 +467,7 @@
       const dday    = window.suksuki.calcDday(localStorage.getItem(window.suksuki.K.DUE_DATE));
       const momName = localStorage.getItem(window.suksuki.K.MOM_NAME) || '예비맘';
       const babyNick = momName && momName !== '예비맘' ? momName : '아가';
-      const text = '우리 ' + babyNick + ' 만나기 D-' + dday + '!\n\n쑥쑥이에서 함께 준비해요 🌱\nhttps://suksuki.com/dday.html';
+      const text = '우리 ' + babyNick + ' 만나기 D-' + dday + '!\n\n쑥쑥이에서 함께 준비해요 🌱\nhttps://suksuki.com/dday.html\n\n(카카오톡 내부에서 열릴 경우 우측 상단 ··· → 다른 브라우저로 열기를 눌러주세요)';
 
       if (navigator.share) {
         navigator.share({
