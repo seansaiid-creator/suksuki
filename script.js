@@ -273,6 +273,80 @@ function resetInfo() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ===== 1번: 태아 수치 비교 함수 =====
+function compareFetusData() {
+  var myWeight = parseFloat(document.getElementById('my-fetus-weight').value);
+  var myLength = parseFloat(document.getElementById('my-fetus-length').value);
+
+  if (!myWeight && !myLength) {
+    showToast('몸무게 또는 키를 입력해주세요 👶');
+    return;
+  }
+
+  // 현재 주수에 맞는 평균 수치 (g, cm 기준)
+  var fetusAvgNum = {
+    4:{w:0,l:0.2}, 5:{w:0,l:0.4}, 6:{w:0,l:0.6}, 7:{w:0,l:1.3},
+    8:{w:1,l:1.6}, 9:{w:2,l:2.3}, 10:{w:4,l:3.1}, 11:{w:7,l:4.1},
+    12:{w:14,l:5.4}, 13:{w:23,l:7.4}, 14:{w:43,l:8.7}, 16:{w:100,l:11.6},
+    18:{w:190,l:14.2}, 20:{w:300,l:16.4}, 22:{w:430,l:19.0},
+    24:{w:600,l:21.0}, 26:{w:760,l:23.0}, 28:{w:1000,l:25.0},
+    30:{w:1300,l:27.0}, 32:{w:1700,l:29.0}, 34:{w:2100,l:32.0},
+    36:{w:2600,l:34.0}, 38:{w:3000,l:36.0}, 40:{w:3300,l:37.0},
+  };
+
+  // 현재 주수 계산
+  var dueDate = localStorage.getItem(K.DUE_DATE);
+  if (!dueDate) return;
+  var dueObj = new Date(dueDate);
+  var lmpObj = new Date(dueObj.getTime() - 280 * 24 * 60 * 60 * 1000);
+  var nowObj = new Date(); nowObj.setHours(0,0,0,0);
+  var week = Math.max(1, Math.min(40, Math.floor((nowObj - lmpObj) / (7 * 24 * 60 * 60 * 1000))));
+
+  var keys = Object.keys(fetusAvgNum).map(Number).sort(function(a,b){return a-b;});
+  var matched = keys[0];
+  for (var i=0; i<keys.length; i++) { if (week >= keys[i]) matched = keys[i]; }
+  var avg = fetusAvgNum[matched];
+
+  function getComment(val, avgVal, unit) {
+    if (!val || avgVal === 0) return '';
+    var diff = val - avgVal;
+    var pct  = Math.round((diff / avgVal) * 100);
+    var diffStr = diff > 0 ? '+' + Math.abs(diff).toFixed(1) : '-' + Math.abs(diff).toFixed(1);
+    var cls, msg;
+    if (Math.abs(pct) <= 20) {
+      cls = 'result-ok'; msg = '정상 범위예요 ✓';
+    } else if (pct > 20) {
+      cls = 'result-high'; msg = '평균보다 크게 성장 중이에요 📈';
+    } else {
+      cls = 'result-low'; msg = '평균보다 조금 작아요. 담당의와 상담해보세요 💙';
+    }
+    return '<span class="' + cls + '">' + msg + '</span> (평균 대비 ' + (pct > 0 ? '+' : '') + pct + '%, ' + diffStr + unit + ')';
+  }
+
+  var resultEl = document.getElementById('fetus-result');
+  var weightEl = document.getElementById('fetus-result-weight');
+  var lengthEl = document.getElementById('fetus-result-length');
+
+  var rows = [];
+  if (myWeight && avg.w > 0) {
+    weightEl.innerHTML = '⚖️ 몸무게: <strong>' + myWeight + 'g</strong> (평균 ' + avg.w + 'g) → ' + getComment(myWeight, avg.w, 'g');
+    rows.push(true);
+  } else {
+    weightEl.innerHTML = '';
+  }
+  if (myLength && avg.l > 0) {
+    lengthEl.innerHTML = '📏 키/길이: <strong>' + myLength + 'cm</strong> (평균 ' + avg.l + 'cm) → ' + getComment(myLength, avg.l, 'cm');
+    rows.push(true);
+  } else {
+    lengthEl.innerHTML = '';
+  }
+
+  if (rows.length > 0) {
+    resultEl.style.display = 'block';
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
 // ===== 5번: 홈에서 D-day 인스타/카카오 공유 =====
 function doShareInstagramHome() {
   var dday    = calcDday(localStorage.getItem(K.DUE_DATE));

@@ -649,3 +649,126 @@ input { font-family: inherit; font-size: 16px; /* iOS 줌 방지 */ }
   color: var(--accent);
   font-size: 12px;
 }
+
+/* ===== 태아 수치 입력 비교 ===== */
+.fetus-avg-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  margin-top: 14px;
+}
+
+.fetus-input-section {
+  margin-top: 16px;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  border: 1.5px solid var(--border);
+}
+
+.fetus-input-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fetus-input-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.fetus-input-hint {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.fetus-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.fetus-input-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fetus-input-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-mid);
+}
+
+.fetus-input-field {
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  min-height: 44px;
+  -webkit-appearance: none;
+}
+
+.fetus-input-field:focus { border-color: var(--primary); }
+
+.btn-fetus-compare {
+  width: 100%;
+  padding: 12px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  min-height: 46px;
+}
+
+.btn-fetus-compare:active { opacity: 0.85; }
+
+/* 비교 결과 */
+.fetus-result {
+  margin-top: 12px;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  border: 1.5px solid var(--primary-light);
+}
+
+.fetus-result-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.fetus-result-row {
+  font-size: 13px;
+  color: var(--text-mid);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.6;
+}
+
+.fetus-result-row:last-of-type { border-bottom: none; }
+
+.fetus-result-note {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+.result-ok   { color: #2E7D32; font-weight: 700; }
+.result-high { color: #E65100; font-weight: 700; }
+.result-low  { color: #1565C0; font-weight: 700; }
