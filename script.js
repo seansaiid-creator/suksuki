@@ -286,77 +286,246 @@ function resetInfo() {
 }
 
 // ===== 1번: 태아 수치 비교 함수 =====
+// ===== 태아 평균 수치 (전 주수) =====
+var FETUS_AVG = {
+  4:{w:0,l:0.2},   5:{w:0,l:0.4},   6:{w:0,l:0.6},   7:{w:0,l:1.3},
+  8:{w:1,l:1.6},   9:{w:2,l:2.3},   10:{w:4,l:3.1},  11:{w:7,l:4.1},
+  12:{w:14,l:5.4}, 13:{w:23,l:7.4}, 14:{w:43,l:8.7}, 15:{w:70,l:10.1},
+  16:{w:100,l:11.6},17:{w:140,l:13.0},18:{w:190,l:14.2},19:{w:240,l:15.3},
+  20:{w:300,l:16.4},21:{w:360,l:26.7},22:{w:430,l:27.8},23:{w:500,l:28.9},
+  24:{w:600,l:21.0},25:{w:680,l:22.0},26:{w:760,l:23.0},27:{w:875,l:24.0},
+  28:{w:1000,l:25.0},29:{w:1150,l:26.0},30:{w:1300,l:27.0},31:{w:1500,l:28.0},
+  32:{w:1700,l:29.0},33:{w:1900,l:30.0},34:{w:2100,l:32.0},35:{w:2350,l:33.0},
+  36:{w:2600,l:34.0},37:{w:2800,l:35.0},38:{w:3000,l:36.0},39:{w:3150,l:36.5},
+  40:{w:3300,l:37.0}
+};
+
+var FETUS_RECORD_KEY = 'sk_fetus_records';
+var currentFetusTab  = 'weight'; // 현재 탭
+
+// 현재 주수 계산 헬퍼
+function getCurrentWeek() {
+  var dueDate = localStorage.getItem(K.DUE_DATE);
+  if (!dueDate) return 0;
+  var lmp = new Date(new Date(dueDate).getTime() - 280*24*60*60*1000);
+  var now = new Date(); now.setHours(0,0,0,0);
+  return Math.max(1, Math.min(40, Math.floor((now - lmp) / (7*24*60*60*1000))));
+}
+
+// 기록 불러오기/저장
+function loadFetusRecords() {
+  try { return JSON.parse(localStorage.getItem(FETUS_RECORD_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveFetusRecords(records) {
+  localStorage.setItem(FETUS_RECORD_KEY, JSON.stringify(records));
+}
+
+// 버튼 클릭 → 저장 + 모달 열기
 function compareFetusData() {
   var myWeight = parseFloat(document.getElementById('my-fetus-weight').value);
   var myLength = parseFloat(document.getElementById('my-fetus-length').value);
+  if (!myWeight && !myLength) { showToast('몸무게 또는 키를 입력해주세요 👶'); return; }
 
-  if (!myWeight && !myLength) {
-    showToast('몸무게 또는 키를 입력해주세요 👶');
+  var week = getCurrentWeek();
+  var today = new Date().toISOString().split('T')[0];
+
+  // 2번: 기록 저장
+  var records = loadFetusRecords();
+  records.unshift({ date: today, week: week, weight: myWeight || null, length: myLength || null });
+  saveFetusRecords(records);
+
+  // 입력 초기화
+  document.getElementById('my-fetus-weight').value = '';
+  document.getElementById('my-fetus-length').value = '';
+
+  openFetusModal();
+}
+
+// ===== 모달 열기/닫기 =====
+function openFetusModal() {
+  var modal = document.getElementById('fetus-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  renderFetusGraph(currentFetusTab);
+  renderFetusRecords();
+}
+
+function closeFetusModalBtn() {
+  var modal = document.getElementById('fetus-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function closeFetusModal(e) {
+  if (e.target.id === 'fetus-modal') closeFetusModalBtn();
+}
+
+// ===== 탭 전환 =====
+function switchFetusTab(tab, btn) {
+  currentFetusTab = tab;
+  document.querySelectorAll('.fetus-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderFetusGraph(tab);
+}
+
+// ===== 그래프 그리기 =====
+function renderFetusGraph(type) {
+  var canvas = document.getElementById('fetus-graph-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  var wrap = canvas.parentElement;
+  var W = wrap.offsetWidth || 320;
+  var H = 220;
+  canvas.width  = W;
+  canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  var pad = { top:16, right:20, bottom:36, left:44 };
+  var gW = W - pad.left - pad.right;
+  var gH = H - pad.top  - pad.bottom;
+
+  // 주수 범위 4~40
+  var weeks = [];
+  for (var w=4; w<=40; w++) { if (FETUS_AVG[w]) weeks.push(w); }
+
+  // 값 추출
+  var avgVals = weeks.map(function(w){ return type==='weight' ? FETUS_AVG[w].w : FETUS_AVG[w].l; });
+  var records = loadFetusRecords();
+  var myPoints = records
+    .filter(function(r){ return type==='weight' ? r.weight : r.length; })
+    .map(function(r){ return { week: r.week, val: type==='weight' ? r.weight : r.length, date: r.date }; });
+
+  // min/max
+  var allVals = avgVals.concat(myPoints.map(function(p){ return p.val; }));
+  var minV = Math.min.apply(null, allVals.filter(function(v){ return v>0; }));
+  var maxV = Math.max.apply(null, allVals);
+  var pad5 = (maxV - minV) * 0.1 || 1;
+  minV = Math.max(0, minV - pad5);
+  maxV = maxV + pad5;
+
+  function xPos(wk) { return pad.left + ((wk-4)/(40-4)) * gW; }
+  function yPos(v)  { return pad.top  + (1 - (v-minV)/(maxV-minV)) * gH; }
+
+  // 배경 격자
+  ctx.strokeStyle = '#E2E8F0';
+  ctx.lineWidth = 0.5;
+  for (var gi=0; gi<=4; gi++) {
+    var yy = pad.top + (gi/4)*gH;
+    ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(pad.left+gW, yy); ctx.stroke();
+    var labelV = maxV - (gi/4)*(maxV-minV);
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(type==='weight' ? Math.round(labelV)+'g' : labelV.toFixed(1)+'cm', pad.left-4, yy+3);
+  }
+
+  // X축 주수 레이블
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  [4,8,12,16,20,24,28,32,36,40].forEach(function(wk){
+    ctx.fillText(wk+'주', xPos(wk), H-pad.bottom+14);
+  });
+
+  // 평균 성장 곡선 (초록 선)
+  ctx.beginPath();
+  ctx.strokeStyle = '#2C7A6F';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  var first = true;
+  weeks.forEach(function(wk) {
+    var v = type==='weight' ? FETUS_AVG[wk].w : FETUS_AVG[wk].l;
+    if (v === 0) { first = true; return; }
+    var x = xPos(wk), y = yPos(v);
+    if (first) { ctx.moveTo(x, y); first = false; }
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // 현재 주수 평균점 (흰 점)
+  var curWeek = getCurrentWeek();
+  if (FETUS_AVG[curWeek]) {
+    var curV = type==='weight' ? FETUS_AVG[curWeek].w : FETUS_AVG[curWeek].l;
+    if (curV > 0) {
+      var cx = xPos(curWeek), cy = yPos(curV);
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6, 0, Math.PI*2);
+      ctx.fillStyle = '#fff';
+      ctx.strokeStyle = '#2C7A6F';
+      ctx.lineWidth = 2;
+      ctx.fill(); ctx.stroke();
+    }
+  }
+
+  // 우리 아기 점들 (빨간 점)
+  myPoints.forEach(function(p) {
+    if (p.val <= 0) return;
+    var px = xPos(p.week), py = yPos(p.val);
+    ctx.beginPath();
+    ctx.arc(px, py, 6, 0, Math.PI*2);
+    ctx.fillStyle = '#E53935';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.fill(); ctx.stroke();
+  });
+
+  // 우리 아기 연결선 (빨간 점선)
+  if (myPoints.length > 1) {
+    var sorted = myPoints.slice().sort(function(a,b){ return a.week - b.week; });
+    ctx.beginPath();
+    ctx.strokeStyle = '#E5393580';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3,3]);
+    sorted.forEach(function(p, i) {
+      var px = xPos(p.week), py = yPos(p.val);
+      if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+// ===== 기록 목록 렌더링 =====
+function renderFetusRecords() {
+  var records = loadFetusRecords();
+  var listEl  = document.getElementById('fetus-records-list');
+  if (!listEl) return;
+
+  if (records.length === 0) {
+    listEl.innerHTML = '<div class="fetus-record-empty">아직 입력된 기록이 없어요.<br/>병원에서 측정 후 수치를 입력해보세요 👶</div>';
     return;
   }
 
-  // 현재 주수에 맞는 평균 수치 (g, cm 기준)
-  var fetusAvgNum = {
-    4:{w:0,l:0.2}, 5:{w:0,l:0.4}, 6:{w:0,l:0.6}, 7:{w:0,l:1.3},
-    8:{w:1,l:1.6}, 9:{w:2,l:2.3}, 10:{w:4,l:3.1}, 11:{w:7,l:4.1},
-    12:{w:14,l:5.4}, 13:{w:23,l:7.4}, 14:{w:43,l:8.7}, 16:{w:100,l:11.6},
-    18:{w:190,l:14.2}, 20:{w:300,l:16.4}, 22:{w:430,l:19.0},
-    24:{w:600,l:21.0}, 26:{w:760,l:23.0}, 28:{w:1000,l:25.0},
-    30:{w:1300,l:27.0}, 32:{w:1700,l:29.0}, 34:{w:2100,l:32.0},
-    36:{w:2600,l:34.0}, 38:{w:3000,l:36.0}, 40:{w:3300,l:37.0},
-  };
+  listEl.innerHTML = records.map(function(r) {
+    var vals = [];
+    if (r.weight) vals.push('⚖️ 몸무게: <strong>' + r.weight + 'g</strong>');
+    if (r.length) vals.push('📏 키/길이: <strong>' + r.length + 'cm</strong>');
 
-  // 현재 주수 계산
-  var dueDate = localStorage.getItem(K.DUE_DATE);
-  if (!dueDate) return;
-  var dueObj = new Date(dueDate);
-  var lmpObj = new Date(dueObj.getTime() - 280 * 24 * 60 * 60 * 1000);
-  var nowObj = new Date(); nowObj.setHours(0,0,0,0);
-  var week = Math.max(1, Math.min(40, Math.floor((nowObj - lmpObj) / (7 * 24 * 60 * 60 * 1000))));
-
-  var keys = Object.keys(fetusAvgNum).map(Number).sort(function(a,b){return a-b;});
-  var matched = keys[0];
-  for (var i=0; i<keys.length; i++) { if (week >= keys[i]) matched = keys[i]; }
-  var avg = fetusAvgNum[matched];
-
-  function getComment(val, avgVal, unit) {
-    if (!val || avgVal === 0) return '';
-    var diff = val - avgVal;
-    var pct  = Math.round((diff / avgVal) * 100);
-    var diffStr = diff > 0 ? '+' + Math.abs(diff).toFixed(1) : '-' + Math.abs(diff).toFixed(1);
-    var cls, msg;
-    if (Math.abs(pct) <= 20) {
-      cls = 'result-ok'; msg = '정상 범위예요 ✓';
-    } else if (pct > 20) {
-      cls = 'result-high'; msg = '평균보다 크게 성장 중이에요 📈';
-    } else {
-      cls = 'result-low'; msg = '평균보다 조금 작아요. 담당의와 상담해보세요 💙';
+    // 평균 대비 코멘트
+    var avgW = FETUS_AVG[r.week] ? FETUS_AVG[r.week].w : 0;
+    var avgL = FETUS_AVG[r.week] ? FETUS_AVG[r.week].l : 0;
+    var comments = [];
+    if (r.weight && avgW > 0) {
+      var pct = Math.round(((r.weight - avgW) / avgW) * 100);
+      var cls = Math.abs(pct)<=20 ? 'result-ok' : pct>20 ? 'result-high' : 'result-low';
+      comments.push('<span class="'+cls+'">' + (pct>=0?'+':'') + pct + '% vs 평균</span>');
     }
-    return '<span class="' + cls + '">' + msg + '</span> (평균 대비 ' + (pct > 0 ? '+' : '') + pct + '%, ' + diffStr + unit + ')';
-  }
+    if (r.length && avgL > 0) {
+      var pct2 = Math.round(((r.length - avgL) / avgL) * 100);
+      var cls2 = Math.abs(pct2)<=20 ? 'result-ok' : pct2>20 ? 'result-high' : 'result-low';
+      comments.push('<span class="'+cls2+'">' + (pct2>=0?'+':'') + pct2 + '% vs 평균</span>');
+    }
 
-  var resultEl = document.getElementById('fetus-result');
-  var weightEl = document.getElementById('fetus-result-weight');
-  var lengthEl = document.getElementById('fetus-result-length');
-
-  var rows = [];
-  if (myWeight && avg.w > 0) {
-    weightEl.innerHTML = '⚖️ 몸무게: <strong>' + myWeight + 'g</strong> (평균 ' + avg.w + 'g) → ' + getComment(myWeight, avg.w, 'g');
-    rows.push(true);
-  } else {
-    weightEl.innerHTML = '';
-  }
-  if (myLength && avg.l > 0) {
-    lengthEl.innerHTML = '📏 키/길이: <strong>' + myLength + 'cm</strong> (평균 ' + avg.l + 'cm) → ' + getComment(myLength, avg.l, 'cm');
-    rows.push(true);
-  } else {
-    lengthEl.innerHTML = '';
-  }
-
-  if (rows.length > 0) {
-    resultEl.style.display = 'block';
-    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+    return '<div class="fetus-record-item">'
+      + '<div class="fetus-record-date">' + r.date + '</div>'
+      + '<div class="fetus-record-week">임신 ' + r.week + '주차</div>'
+      + '<div class="fetus-record-values">' + vals.join(' &nbsp; ') + '</div>'
+      + (comments.length ? '<div style="margin-top:4px;font-size:12px;">' + comments.join(' &nbsp; ') + '</div>' : '')
+      + '</div>';
+  }).join('');
 }
 
 // ===== 5번: 홈에서 D-day 인스타/카카오 공유 =====

@@ -199,15 +199,7 @@
                 <input class="fetus-input-field" type="number" id="my-fetus-length" placeholder="예: 18.5" step="0.1" />
               </div>
             </div>
-            <button class="btn-fetus-compare" onclick="compareFetusData()">평균과 비교하기 →</button>
-          </div>
-
-          <!-- 비교 결과 -->
-          <div class="fetus-result" id="fetus-result" style="display:none;">
-            <div class="fetus-result-title">📈 비교 결과</div>
-            <div id="fetus-result-weight" class="fetus-result-row"></div>
-            <div id="fetus-result-length" class="fetus-result-row"></div>
-            <p class="fetus-result-note">※ ±20% 범위는 정상이에요. 걱정되면 담당 산부인과와 상담하세요.</p>
+            <button class="btn-fetus-compare" onclick="compareFetusData()">📊 그래프로 비교하기 →</button>
           </div>
         </div>
 
@@ -297,5 +289,42 @@
 
   <div class="toast hidden" id="toast"></div>
   <script src="script.js"></script>
+
+  <!-- ===== 태아 성장 그래프 모달 ===== -->
+  <div id="fetus-modal" class="fetus-modal-overlay hidden" onclick="closeFetusModal(event)">
+    <div class="fetus-modal-box">
+      <div class="fetus-modal-header">
+        <span class="fetus-modal-title">📊 태아 성장 그래프</span>
+        <button class="fetus-modal-close" onclick="closeFetusModalBtn()">✕</button>
+      </div>
+
+      <!-- 탭 -->
+      <div class="fetus-modal-tabs">
+        <button class="fetus-tab active" id="tab-weight" onclick="switchFetusTab('weight', this)">⚖️ 몸무게</button>
+        <button class="fetus-tab" id="tab-length" onclick="switchFetusTab('length', this)">📏 키/길이</button>
+      </div>
+
+      <!-- 그래프 -->
+      <div class="fetus-graph-wrap">
+        <canvas id="fetus-graph-canvas"></canvas>
+      </div>
+
+      <!-- 범례 -->
+      <div class="fetus-legend">
+        <span class="legend-item"><span class="legend-line"></span> 평균 성장 곡선</span>
+        <span class="legend-item"><span class="legend-dot-white"></span> 해당 주 평균</span>
+        <span class="legend-item"><span class="legend-dot-red"></span> 우리 아기</span>
+      </div>
+
+      <!-- 기록 목록 -->
+      <div class="fetus-records-wrap">
+        <p class="fetus-records-title">📋 측정 기록 (최신순)</p>
+        <div id="fetus-records-list"></div>
+      </div>
+
+      <p class="fetus-modal-note">※ 이 정보는 참고용이에요. 걱정되는 사항은 담당 산부인과와 상담하세요.</p>
+    </div>
+  </div>
+
 </body>
 </html>
