@@ -124,13 +124,19 @@ function showDashboard() {
     var months = calcMonths(birth);
     var gIcon  = gender === 'boy' ? ' 👦' : gender === 'girl' ? ' 👧' : '';
 
+    // 아이 카드 표시
+    var babyCardSection = document.getElementById('baby-card-section');
+    var thisMonthSection = document.getElementById('this-month-section');
+    if (babyCardSection) babyCardSection.style.display = 'block';
+    if (thisMonthSection) thisMonthSection.style.display = 'none';
+
     var dashName   = document.getElementById('dash-name');
     var dashMonths = document.getElementById('dash-months');
     if (dashName)   dashName.textContent   = name + gIcon;
     if (dashMonths) dashMonths.textContent = '현재 ' + months + '개월 (' + fmtDate(birth) + ')';
 
     var tasks  = getThisMonthTasks(months);
-    var listEl = document.getElementById('this-month-list');
+    var listEl = document.getElementById('this-month-list-baby');
     if (listEl) {
       listEl.innerHTML = tasks.map(function(t) {
         return '<div class="this-month-item">' + t + '</div>';
@@ -195,22 +201,28 @@ function showDashboard() {
     var matchedWeek = fetusKeys[0];
     for (var fi=0; fi<fetusKeys.length; fi++) { if (week >= fetusKeys[fi]) matchedWeek = fetusKeys[fi]; }
     var fetus = fetusDataHome[matchedWeek];
-    var homeSize   = document.getElementById('home-fetus-size');
+    // 주수별 크기 이모지 매핑
+    var fetusEmoji = {
+      4:'🌱',5:'🌱',6:'🫛',7:'🫐',8:'🍓',9:'🫒',10:'🍑',
+      12:'🍑',14:'🍋',16:'🥑',18:'🥭',20:'🍌',24:'🌿',
+      28:'🍆',32:'🥬',36:'🥬',38:'🍉',40:'🍉'
+    };
+    var emojiKeys = Object.keys(fetusEmoji).map(Number).sort(function(a,b){return a-b;});
+    var matchedEmoji = emojiKeys[0];
+    for (var ei=0; ei<emojiKeys.length; ei++) { if (week >= emojiKeys[ei]) matchedEmoji = emojiKeys[ei]; }
+
+    // 태아 크기 시각화
+    var sizeVisual = document.getElementById('fetus-size-visual');
+    var homeSizeText = document.getElementById('home-fetus-size');
+    if (sizeVisual) sizeVisual.textContent = fetusEmoji[matchedEmoji];
+    if (homeSizeText) homeSizeText.textContent = fetus.size;
+
     var homeWeight = document.getElementById('home-fetus-weight');
     var homeLength = document.getElementById('home-fetus-length');
     var homeDesc   = document.getElementById('home-fetus-desc');
-    if (homeSize)   homeSize.textContent   = fetus.size;
     if (homeWeight) homeWeight.textContent = fetus.weight;
     if (homeLength) homeLength.textContent = fetus.length;
     if (homeDesc)   homeDesc.textContent   = fetus.desc;
-
-    // 아이 카드 - 태명 표시
-    var dashLabel   = document.getElementById('dash-label');
-    var dashName2   = document.getElementById('dash-name');
-    var dashMonths2 = document.getElementById('dash-months');
-    if (dashLabel)   dashLabel.textContent   = '태명';
-    if (dashName2)   dashName2.textContent   = babyNick + ' 🤰';
-    if (dashMonths2) dashMonths2.textContent = '출산 D-' + dday + ' (' + fmtDate(dueDate) + ')';
 
     // 3번: 이번달 챙겨야 할 것 (링크 연결)
     var listEl2 = document.getElementById('this-month-list');

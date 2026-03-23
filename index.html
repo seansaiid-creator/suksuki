@@ -140,32 +140,39 @@
     <!-- 대시보드 뷰 (저장 후) -->
     <div id="view-dashboard" class="hidden">
 
-      <!-- 임신 중 D-day 히어로 (임신 중일 때만 표시) -->
+      <!-- ===== 임신 중 통합 히어로 카드 ===== -->
       <div id="dday-hero-home" class="hidden">
-        <div class="dday-home-hero">
-          <p class="dday-home-label" id="dday-home-label">출산까지</p>
-          <div class="dday-home-number" id="dday-home-number">D-0</div>
-          <p class="dday-home-date" id="dday-home-date">-</p>
-          <div class="dday-home-chips">
-            <span class="dday-home-chip" id="dday-home-week">-</span>
-            <span class="dday-home-chip" id="dday-home-trimester">-</span>
+
+        <!-- 통합 히어로: 태명 + D-day + 날짜 + 수정버튼 -->
+        <div class="preg-hero">
+          <div class="preg-hero-top">
+            <div class="preg-hero-left">
+              <p class="preg-hero-label" id="dday-home-label">우리 아가 만나기</p>
+              <div class="preg-hero-dday" id="dday-home-number">D-0</div>
+              <p class="preg-hero-date" id="dday-home-date">-</p>
+              <div class="preg-hero-chips">
+                <span class="preg-hero-chip" id="dday-home-week">-</span>
+                <span class="preg-hero-chip" id="dday-home-trimester">-</span>
+              </div>
+            </div>
+            <!-- 태아 크기 시각화 -->
+            <div class="preg-hero-right">
+              <div class="fetus-size-visual" id="fetus-size-visual">🫐</div>
+              <p class="fetus-size-text" id="home-fetus-size">-</p>
+              <p class="fetus-size-label">이번 주 크기</p>
+            </div>
           </div>
+          <button class="btn-preg-edit" onclick="resetInfo()">✏️ 수정</button>
         </div>
 
-        <!-- 태아 발달 + 수치 입력 비교 -->
+        <!-- 태아 발달 설명 -->
         <div class="fetus-home-card">
-          <p class="fetus-home-title">👶 이번 주 태아 정보</p>
-
-          <!-- 2번: desc 먼저 (위치 교체) -->
+          <p class="fetus-home-title">👶 이번 주 태아 발달</p>
           <p class="fetus-home-desc" id="home-fetus-desc">-</p>
 
-          <!-- 2번: 수치 그리드 아래로 (위치 교체) -->
+          <!-- 평균 수치 -->
           <div class="fetus-avg-label">📊 이번 주 평균 수치</div>
           <div class="fetus-home-grid">
-            <div class="fetus-home-item">
-              <span class="fetus-home-value" id="home-fetus-size">-</span>
-              <span class="fetus-home-label">크기 비유</span>
-            </div>
             <div class="fetus-home-item">
               <span class="fetus-home-value" id="home-fetus-weight">-</span>
               <span class="fetus-home-label">평균 몸무게</span>
@@ -176,11 +183,11 @@
             </div>
           </div>
 
-          <!-- 1번: 태아 수치 직접 입력 -->
+          <!-- 우리 아기 수치 입력 -->
           <div class="fetus-input-section">
             <div class="fetus-input-header">
               <span class="fetus-input-title">✏️ 우리 아기 수치 입력</span>
-              <span class="fetus-input-hint">병원에서 측정한 수치를 입력하세요</span>
+              <span class="fetus-input-hint">병원에서 측정한 수치</span>
             </div>
             <div class="fetus-input-grid">
               <div class="fetus-input-item">
@@ -195,7 +202,7 @@
             <button class="btn-fetus-compare" onclick="compareFetusData()">평균과 비교하기 →</button>
           </div>
 
-          <!-- 1번: 비교 결과 -->
+          <!-- 비교 결과 -->
           <div class="fetus-result" id="fetus-result" style="display:none;">
             <div class="fetus-result-title">📈 비교 결과</div>
             <div id="fetus-result-weight" class="fetus-result-row"></div>
@@ -203,10 +210,19 @@
             <p class="fetus-result-note">※ ±20% 범위는 정상이에요. 걱정되면 담당 산부인과와 상담하세요.</p>
           </div>
         </div>
+
       </div>
 
-      <!-- 아이 카드 -->
-      <section class="baby-card-wrap">
+      <!-- 이번 달 챙겨야 할 것 (임신/아이 공통) -->
+      <section class="baby-card-wrap" id="this-month-section">
+        <div class="this-month-box" id="this-month-box">
+          <p class="this-month-title">⚡ 이번 달 챙겨야 할 것</p>
+          <div id="this-month-list"></div>
+        </div>
+      </section>
+
+      <!-- 아이 카드 (아이 있을 때만 표시) -->
+      <section class="baby-card-wrap" id="baby-card-section" style="display:none;">
         <div class="baby-card">
           <div class="baby-info">
             <p class="baby-label" id="dash-label">현재 등록된 아이</p>
@@ -215,10 +231,9 @@
           </div>
           <button class="btn-edit" onclick="resetInfo()">✏️ 수정</button>
         </div>
-        <!-- 3번: 이번 달 챙겨야 할 것 (링크 연결) -->
-        <div class="this-month-box" id="this-month-box">
+        <div class="this-month-box">
           <p class="this-month-title">⚡ 이번 달 챙겨야 할 것</p>
-          <div id="this-month-list"></div>
+          <div id="this-month-list-baby"></div>
         </div>
       </section>
 
